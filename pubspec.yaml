@@ -23,6 +23,9 @@ dev_dependencies:
   flutter_test: 
     sdk: flutter
 
-flutter: 
+flutter:
+  assets:
+   - images/
+   - assets/images/
   uses-material-design: true
 
