@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:untitled/app/modules/auth/controllers/auth_controller.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../widgets/mix_widgets.dart';
 
@@ -71,7 +70,7 @@ class _RegistrationViewState extends State<RegistrationView> {
       body: Stack(
         children: [
           Center(
-            child: Container(
+            child: SizedBox(
               width: 450,
               child: Form(
                 key: _formKey,

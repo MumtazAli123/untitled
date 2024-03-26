@@ -6,6 +6,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:get_time_ago/get_time_ago.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:untitled/drawer/drawer.dart';
 
 import '../../../../widgets/mix_widgets.dart';
 import '../controllers/home_controller.dart';
@@ -25,6 +26,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: MyDrawer(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue,
         onPressed: () {
@@ -33,6 +35,7 @@ class _HomeViewState extends State<HomeView> {
         child: Icon(Icons.add),
       ),
       appBar: AppBar(
+        iconTheme:  IconThemeData(color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
         title: wText(
           controller.articleList.isEmpty
               ? 'No data found'

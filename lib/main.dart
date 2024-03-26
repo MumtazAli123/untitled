@@ -1,10 +1,10 @@
 // ignore_for_file: prefer_const_constructors , prefer_const_literals_to_create_immutables
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:get/get_navigation/src/routes/default_route.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
-import 'package:untitled/app/modules/home/views/home_view.dart';
+import 'package:provider/provider.dart';
 import 'package:untitled/theme/dark_theme.dart';
 import 'package:untitled/theme/light_theme.dart';
 
@@ -17,7 +17,7 @@ void main() async{
     options: DefaultFirebaseOptions.currentPlatform,
 
   );
-  runApp(const MyApp());
+  runApp( ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: darkTheme,
+      themeMode: ThemeMode.system,
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
     );
