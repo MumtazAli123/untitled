@@ -20,10 +20,16 @@ dependencies:
   flutter: 
     sdk: flutter
 
-dev_dependencies: 
+dev_dependencies:
   flutter_lints: ^3.0.0
   flutter_test: 
     sdk: flutter
+  flutter_app_name: ^0.1.0
+
+flutter_app_name:
+    name: "Wallet App"
+
+
 
 flutter: 
   assets: 

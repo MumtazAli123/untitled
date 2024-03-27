@@ -15,7 +15,7 @@
 	<key>LSApplicationQueriesSchemes</key>
     <array>
       <string>sms</string>
-      <string>tel</string>
+      <string>Wallet App</string>
     </array>
 	<key>CFBundleName</key>
 	<string>untitled</string>
