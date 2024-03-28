@@ -12,6 +12,12 @@ class AuthController extends GetxController {
 
   var isRefresh = false.obs;
 
+  var isBalance = false.obs;
+
+  var isObscureText = true.obs;
+
+
+
 
 
 

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -41,6 +43,35 @@ wTextFormFiled(String hint, IconData?  icon, TextEditingController controller,Te
         borderRadius: BorderRadius.circular(10),
       ),
     ),
+  );
+}
+
+wDialogBox(BuildContext context, String title, String content, Function() onPressed) {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        actionsAlignment: MainAxisAlignment.center,
+        contentPadding: const EdgeInsets.all(20.0),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        title: wText(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: onPressed,
+            child: wText('Ok'),
+          ),
+        ],
+      );
+    },
   );
 }
 

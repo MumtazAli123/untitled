@@ -1,7 +1,10 @@
+
 import 'package:get/get.dart';
 
 import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/auth_view.dart';
+import '../modules/budget/bindings/budget_binding.dart';
+import '../modules/budget/views/budget_view.dart';
 import '../modules/counter/bindings/counter_binding.dart';
 import '../modules/counter/views/counter_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -18,6 +21,13 @@ class AppPages {
     GetPage(
       name: _Paths.HOME,
       page: () => const HomeView(),
+      // page: () => LayoutBuilder(builder: (context, constraints) {
+      //   if (constraints.maxWidth > 900) {
+      //     return const HomeView();
+      //   } else {
+      //     return const MobView();
+      //   }
+      // }),
       binding: HomeBinding(),
     ),
     GetPage(
@@ -29,6 +39,11 @@ class AppPages {
       name: _Paths.COUNTER,
       page: () => const CounterView(),
       binding: CounterBinding(),
+    ),
+    GetPage(
+      name: _Paths.BUDGET,
+      page: () => const BudgetView(),
+      binding: BudgetBinding(),
     ),
   ];
 }

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:untitled/app/modules/counter/views/counter_view.dart';
 
 class MyDrawer extends StatelessWidget {
   const MyDrawer({super.key});
@@ -13,14 +14,16 @@ class MyDrawer extends StatelessWidget {
       child: ListView(
         children: [
           UserAccountsDrawerHeader(
-            decoration: BoxDecoration(color: Colors.white),
+            decoration: Theme.of(context).brightness == Brightness.dark
+                ? BoxDecoration(color: Colors.black )
+                : BoxDecoration(color: Colors.white),
             currentAccountPictureSize: Size.square(50),
             accountName: Text('John Doe'),
             accountEmail: Text('j@gmail.com'),
             currentAccountPicture: CircleAvatar(
 
               backgroundImage: AssetImage('images/call.png'),
-              backgroundColor: Colors.white,
+              backgroundColor: Get.isDarkMode ? Colors.black : Colors.white,
             ),
           ),
           ListTile(
@@ -34,7 +37,22 @@ class MyDrawer extends StatelessWidget {
             title: Text('Counter'),
             leading: Icon(Icons.person),
             onTap: () {
-              Get.toNamed('/counter');
+              Get.to(() => CounterView());
+            },
+          ),
+        //   budget
+          ListTile(
+            title: Text('Budget'),
+            leading: Icon(Icons.person),
+            onTap: () {
+              Get.toNamed('/budget');
+            },
+          ),
+          ListTile(
+            title: Text('Auth'),
+            leading: Icon(Icons.person),
+            onTap: () {
+              Get.toNamed('/auth');
             },
           ),
 

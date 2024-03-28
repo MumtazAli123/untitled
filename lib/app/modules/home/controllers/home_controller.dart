@@ -5,9 +5,12 @@ import 'package:logger/logger.dart';
 class HomeController extends GetxController {
   //TODO: Implement HomeController
 
-  final count = 0.obs;
+  final totalBalance = 0.obs;
 
-  var articleList = [].obs;
+  var incomeList = [].obs;
+  var expenseList = [].obs;
+  
+  
 
   // get time ago
 
@@ -18,19 +21,19 @@ class HomeController extends GetxController {
   var isBalance = false.obs;
 
 
-  void increment() => count.value++;
-  void decrement() => count.value--;
+  void increment() => totalBalance.value++;
+  void decrement() => totalBalance.value--;
 
   void article() async{
     var snapshot = await FirebaseFirestore.instance.collection('article').get();
-    articleList.value = snapshot.docs.reversed.toList();
+    incomeList.value = snapshot.docs.reversed.toList();
   }
 
   void streamArticle()async {
     var logger = Logger();
 
   await for (var snapshot in FirebaseFirestore.instance.collection('article').snapshots()) {
-    articleList.value = snapshot.docs.reversed.toList();
+    incomeList.value = snapshot.docs.reversed.toList();
     logger.i(timeAgo = snapshot.docs[0].data()['created_at']);
 
   }
@@ -70,6 +73,30 @@ class HomeController extends GetxController {
 
   void deleteArticle(id) {
     FirebaseFirestore.instance.collection('article').doc(id).delete(
+    ).then((value) {
+      article();
+    }
+    );
+  }
+
+  void addExpense(String title, String balance) {
+    FirebaseFirestore.instance.collection('expense').add({
+      'title': title,
+      'balance': balance,
+      'created_at': DateTime.now().toString(),
+    }).then((value) {
+      article();
+    });
+  }
+
+  void updateExpense(id, Map<String, String> map) {
+    FirebaseFirestore.instance.collection('expense').doc(id).update(map).then((value) {
+      article();
+    });
+  }
+
+  void deleteExpense(id) {
+    FirebaseFirestore.instance.collection('expense').doc(id).delete(
     ).then((value) {
       article();
     }

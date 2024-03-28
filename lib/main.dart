@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
-import 'package:provider/provider.dart';
 import 'package:untitled/theme/dark_theme.dart';
 import 'package:untitled/theme/light_theme.dart';
 
@@ -35,6 +34,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
+      // home: const ResponsiveHandler(),
     );
   }
 }

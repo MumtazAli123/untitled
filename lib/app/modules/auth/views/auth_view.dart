@@ -12,6 +12,7 @@ class AuthView extends GetView<AuthController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme:  IconThemeData(color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
         title: const Text('AuthView'),
         centerTitle: true,
       ),

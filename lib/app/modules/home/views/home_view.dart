@@ -27,20 +27,35 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: MyDrawer(),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue,
-        onPressed: () {
-          _buildAddArticleDialog();
-        },
-        child: Icon(Icons.add),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            backgroundColor: Colors.green,
+            heroTag: 'add',
+            onPressed: () {
+              _buildAddArticleDialog();
+            },
+            child: Icon(Icons.add, color: Colors.white),
+          ),
+          SizedBox(width: 10),
+          FloatingActionButton(
+            backgroundColor: controller.isBalance.value ? Colors.red : Colors.green,
+            heroTag: 'balance',
+            onPressed: () {
+              _buildExpenseDialog();
+            },
+            child: Icon(Icons.remove, color: Colors.white),
+          ),
+        ],
       ),
       appBar: AppBar(
         iconTheme:  IconThemeData(color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
         title: wText(
-          controller.articleList.isEmpty
+          controller.incomeList.isEmpty
               ? 'No data found'
               // balance add and minus
-              : controller.articleList[index].data()['title'],
+              : controller.incomeList[index].data()['title'],
         ),
         centerTitle: true,
         actions: [
@@ -65,7 +80,7 @@ class _HomeViewState extends State<HomeView> {
         child: SizedBox(
           width: 450,
           child: Obx(() {
-            if (controller.articleList.isEmpty) {
+            if (controller.incomeList.isEmpty) {
               return const Center(
                   child: Text(
                 'No data found',
@@ -75,7 +90,7 @@ class _HomeViewState extends State<HomeView> {
               return ListView.builder(
                 restorationId: 'list',
                 reverse: false,
-                itemCount: controller.articleList.length,
+                itemCount: controller.incomeList.length,
                 itemBuilder: (context, index) {
                   return Slidable(
                     endActionPane: ActionPane(
@@ -84,10 +99,10 @@ class _HomeViewState extends State<HomeView> {
                         SlidableAction(
                           onPressed: (context) {
                             _buildEditArticleDialog(
-                                controller.articleList[index].id,
-                                controller.articleList[index].data()['title'],
-                                controller.articleList[index].data()['body'],
-                                controller.articleList[index].data()['balance']);
+                                controller.incomeList[index].id,
+                                controller.incomeList[index].data()['title'],
+                                controller.incomeList[index].data()['body'],
+                                controller.incomeList[index].data()['balance']);
                           },
                           icon: Icons.edit,
                           label: 'Edit',
@@ -97,7 +112,7 @@ class _HomeViewState extends State<HomeView> {
                         SlidableAction(
                           onPressed: (context) {
                             controller
-                                .deleteArticle(controller.articleList[index].id);
+                                .deleteArticle(controller.incomeList[index].id);
                           },
                           icon: Icons.delete,
                           label: 'Delete',
@@ -109,20 +124,20 @@ class _HomeViewState extends State<HomeView> {
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor: Colors.blue,
-                        child: wText(controller.articleList[index]
+                        child: wText(controller.incomeList[index]
                             .data()['title']
                             .toString()
                             .substring(0, 1)
                             .toUpperCase()),
                       ),
-                      title: Text(controller.articleList[index].data()['title']),
+                      title: Text(controller.incomeList[index].data()['title']),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(controller.articleList[index].data()['body']),
+                          Text(controller.incomeList[index].data()['body']),
                           Text(
                               GetTimeAgo.parse(DateTime.parse(controller
-                                  .articleList[index]
+                                  .incomeList[index]
                                   .data()['created_at']
                                   .toString())),
                               style: GoogleFonts.cabin(
@@ -133,13 +148,13 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       trailing: controller.isBalance.value
                           ? Text(
-                              "- PKR: ${controller.articleList[index].data()['balance'] ?? 0}",
+                              "- PKR: ${controller.expenseList[index].data()['balance'] ?? 0}",
                               style: GoogleFonts.cabin(
                                   color: Colors.red,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold))
                           : Text(
-                              "+ PKR: ${controller.articleList[index].data()['balance'] ?? 0}",
+                              "+ PKR: ${controller.incomeList[index].data()['balance'] ?? 0}",
                               style: GoogleFonts.cabin(
                                   color: Colors.green,
                                   fontSize: 16,
@@ -268,6 +283,58 @@ class _HomeViewState extends State<HomeView> {
                 Navigator.pop(context);
               },
               child: Text('Update'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _buildExpenseDialog() {
+    final TextEditingController expansiveName = TextEditingController();
+    final TextEditingController expansiveAmount = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Add Expense'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: expansiveName,
+                decoration: InputDecoration(
+                    hintText: 'Balance',
+                    labelText: 'Balance',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    )),
+              ),
+              SizedBox(height: 10.0),
+              TextField(
+                controller: expansiveAmount,
+                decoration: InputDecoration(
+                    hintText: 'Amount',
+                    labelText: 'Amount',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    )),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                controller.addExpense(expansiveName.text, expansiveAmount.text);
+                Navigator.pop(context);
+              },
+              child: Text('Add'),
             ),
           ],
         );
