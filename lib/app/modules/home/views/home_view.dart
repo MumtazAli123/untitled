@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:untitled/drawer/drawer.dart';
 
 import '../../../../widgets/mix_widgets.dart';
+import '../../counter/controllers/counter_controller.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends StatefulWidget {
@@ -20,6 +21,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final HomeController controller = Get.put(HomeController());
+  final CounterController counterController = Get.put(CounterController());
 
   var index = 0;
 
@@ -51,11 +53,16 @@ class _HomeViewState extends State<HomeView> {
       ),
       appBar: AppBar(
         iconTheme:  IconThemeData(color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
-        title: wText(
-          controller.incomeList.isEmpty
-              ? 'No data found'
+        title: TextButton(
+          onPressed: (){
+            _buildLocationDialog();
+          },
+          child: wText(
+              controller.incomeList.isEmpty
+                  ? 'No data found'
               // balance add and minus
-              : controller.incomeList[index].data()['title'],
+                  : '${counterController.city.string} '
+          ),
         ),
         centerTitle: true,
         actions: [
@@ -339,6 +346,34 @@ class _HomeViewState extends State<HomeView> {
           ],
         );
       },
+    );
+  }
+
+  void _buildLocationDialog() {
+    Get.dialog(
+      AlertDialog(
+        title: Text('Location'),
+        content: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            wText('City: ${counterController.city.string}'),
+            wText('Country: ${counterController.country.string}'),
+            wText('Address: ${counterController.address.string}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('Close'),
+          ),
+        ],
+      ),
+
+
     );
   }
 }

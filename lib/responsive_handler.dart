@@ -7,7 +7,7 @@ import 'package:untitled/app/modules/home/views/home_view.dart';
 import 'package:untitled/view_model.dart';
 
 import 'app/modules/auth/views/mob_auth_view.dart';
-import 'app/modules/home/views/mob_view.dart';
+import 'app/modules/home/views/web_view.dart';
 
 class ResponsiveHandler extends HookConsumerWidget {
   const ResponsiveHandler({super.key});
@@ -22,7 +22,7 @@ class ResponsiveHandler extends HookConsumerWidget {
         if (constraints.maxWidth > 600) {
           return HomeView();
         } else {
-          return MobView();
+          return WebView();
         }
       });
     } else {

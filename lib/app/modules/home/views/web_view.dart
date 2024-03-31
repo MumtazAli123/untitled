@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
-class MobView extends GetView {
-  const MobView({super.key});
+class WebView extends GetView {
+  const WebView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(

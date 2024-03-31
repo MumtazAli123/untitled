@@ -6,6 +6,12 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Untitled</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Location is required to find out where you are</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Location is required to find out where you are</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>Location is required to find out where you are</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
