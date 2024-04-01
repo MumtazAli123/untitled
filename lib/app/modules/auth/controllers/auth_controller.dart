@@ -1,12 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:get/get.dart';
 
 class AuthController extends GetxController {
   //TODO: Implement AuthController
 
-  final count = 0.obs;
+  // qrCode
+  final qrCodeController = TextEditingController();
 
-  var  isLoading = false.obs;
+  var qrCode = ''.obs;
+  // scan qr code
+  String scanQrCode = '';
+
+  var isLoading = false.obs;
 
   var isLogin = false.obs;
 
@@ -16,19 +24,10 @@ class AuthController extends GetxController {
 
   var isObscureText = true.obs;
 
+  bool  mounted = false;
 
-
-
-
-
-
-
-
-
-
-  void increment() => count.value++;
-
-  void register(String name, String email, String phone, String address, String password) {
+  void register(String name, String email, String phone, String address,
+      String password) {
     isLoading(true);
     FirebaseFirestore.instance.collection('users').add({
       'name': name,
@@ -39,7 +38,7 @@ class AuthController extends GetxController {
     }).then((value) {
       isLoading(false);
       Get.snackbar('Success', 'Registration Success');
-    }).catchError((e){
+    }).catchError((e) {
       isLoading(false);
       Get.snackbar('Error', e.toString());
     });
@@ -47,16 +46,21 @@ class AuthController extends GetxController {
 
   void login(String email, String password) {
     isLoading(true);
-    FirebaseFirestore.instance.collection('users').where('email', isEqualTo: email).where('password', isEqualTo: password).get().then((value) {
-      if(value.docs.isNotEmpty){
+    FirebaseFirestore.instance
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .where('password', isEqualTo: password)
+        .get()
+        .then((value) {
+      if (value.docs.isNotEmpty) {
         isLoading(false);
         isLogin(true);
         Get.snackbar('Success', 'Login Success');
-      }else{
+      } else {
         isLoading(false);
         Get.snackbar('Error', 'Email or Password is wrong');
       }
-    }).catchError((e){
+    }).catchError((e) {
       isLoading(false);
       Get.snackbar('Error', e.toString());
     });
@@ -66,7 +70,8 @@ class AuthController extends GetxController {
     isLogin(false);
   }
 
-  void updateProfile(String name, String email, String phone, String address, String password) {
+  void updateProfile(String name, String email, String phone, String address,
+      String password) {
     isLoading(true);
     FirebaseFirestore.instance.collection('users').doc().update({
       'name': name,
@@ -77,7 +82,7 @@ class AuthController extends GetxController {
     }).then((value) {
       isLoading(false);
       Get.snackbar('Success', 'Update Profile Success');
-    }).catchError((e){
+    }).catchError((e) {
       isLoading(false);
       Get.snackbar('Error', e.toString());
     });
@@ -85,23 +90,76 @@ class AuthController extends GetxController {
 
   void deleteProfile(String id) {
     isLoading(true);
-    FirebaseFirestore.instance.collection('users').doc(id).delete().then((value) {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(id)
+        .delete()
+        .then((value) {
       isLoading(false);
       Get.snackbar('Success', 'Delete Profile Success');
-    }).catchError((e){
+    }).catchError((e) {
       isLoading(false);
       Get.snackbar('Error', e.toString());
     });
   }
 
   void streamArticle() {
-    FirebaseFirestore.instance.collection('article').snapshots().listen((event) {
+    FirebaseFirestore.instance
+        .collection('article')
+        .snapshots()
+        .listen((event) {
       print(event.docs[0].data());
     });
   }
 
   void togglePassword() {
     isLoading(!isLoading.value);
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+  }
+
+@override
+  void onReady() {
+    super.onReady();
+  }
+
+  @override
+  void onClose() {}
+
+  Future getBalance() async {
+    isBalance(true);
+    await Future.delayed(Duration(seconds: 2));
+    isBalance(false);
+  }
+
+  @override
+  void refresh() {
+    isRefresh(true);
+    Future.delayed(const Duration(seconds: 2), () {
+      isRefresh(false);
+    });
+  }
+
+   Future<void> scanQr() async {
+    try {
+      final qrCode = await FlutterBarcodeScanner.scanBarcode(
+        '#ff6666',
+        'Cancel',
+        true,
+        ScanMode.QR,
+      );
+      Get.snackbar('QR Code', qrCode, snackPosition: SnackPosition.BOTTOM);
+      if (!mounted) return;
+      scanQrCode = qrCode;
+      qrCodeController.text = scanQrCode;
+    } on PlatformException {
+      scanQrCode = 'Failed to get platform version.';
+    }
 
   }
 }
+
+

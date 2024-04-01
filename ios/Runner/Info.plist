@@ -10,6 +10,8 @@
     <string>Location is required to find out where you are</string>
     <key>NSLocationAlwaysUsageDescription</key>
     <string>Location is required to find out where you are</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Camera permission is required for barcode scanning.</string>
     <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
     <string>Location is required to find out where you are</string>
 	<key>CFBundleExecutable</key>
