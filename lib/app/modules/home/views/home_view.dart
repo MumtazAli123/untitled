@@ -359,8 +359,10 @@ class _HomeViewState extends State<HomeView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             wText('City: ${counterController.city.string}'),
+            wText('State: ${counterController.province.string}'),
             wText('Country: ${counterController.country.string}'),
             wText('Address: ${counterController.address.string}'),
+
           ],
         ),
         actions: [
