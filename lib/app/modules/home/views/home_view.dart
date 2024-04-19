@@ -129,6 +129,13 @@ class _HomeViewState extends State<HomeView> {
                       ],
                     ),
                     child: ListTile(
+                      onTap: () {
+                        _buildDetailDialog(
+                            controller.incomeList[index].data()['title'],
+                            controller.incomeList[index].data()['body'],
+                            controller.incomeList[index].data()['balance'],
+                            controller.incomeList[index].data()['created_at']);
+                      },
                       leading: CircleAvatar(
                         backgroundColor: Colors.blue,
                         child: wText(controller.incomeList[index]
@@ -390,6 +397,33 @@ class _HomeViewState extends State<HomeView> {
       ),
 
 
+    );
+  }
+
+  void _buildDetailDialog(data, data2, data3, data4) {
+    Get.dialog(
+      AlertDialog(
+        title: Text('Detail'),
+        content: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            wText('Title: $data'),
+            wText('Description: $data2'),
+            wText('Amount: $data3'),
+            wText('Created At: $data4'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('Close'),
+          ),
+        ],
+      ),
     );
   }
 }

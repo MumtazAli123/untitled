@@ -79,11 +79,11 @@ class HomeController extends GetxController {
     });
   }
 
-  void addExpense(String title, String balance, String text3) {
+  void addExpense(String title, String text2, String text3) {
     FirebaseFirestore.instance.collection('article').add({
       'title': title,
-      'balance': balance,
-      'body': text3,
+      'body': text2,
+      "balance": text3,
       'created_at': DateTime.now().toString(),
       'type': 'expense',
 
