@@ -153,19 +153,19 @@ class _HomeViewState extends State<HomeView> {
                                   fontWeight: FontWeight.bold)),
                         ],
                       ),
-                      trailing: controller.isBalance.value
-                          ? Text(
-                              "- PKR: ${controller.expenseList[index].data()['balance'] ?? 0}",
-                              style: GoogleFonts.cabin(
-                                  color: Colors.red,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold))
-                          : Text(
-                              "+ PKR: ${controller.incomeList[index].data()['balance'] ?? 0}",
-                              style: GoogleFonts.cabin(
-                                  color: Colors.green,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold)),
+                      trailing: Text(
+                        controller.incomeList[index].data()['type'] == 'income'
+                            ? '+ ${controller.incomeList[index].data()['balance']}'
+                            : '- ${controller.incomeList[index].data()['balance']}',
+                        style: TextStyle(
+                            color: controller.incomeList[index].data()['type'] ==
+                                    'income'
+                                ? Colors.green
+                                : Colors.red,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
                     ),
                   );
                 },
@@ -298,35 +298,48 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void _buildExpenseDialog() {
-    final TextEditingController expansiveName = TextEditingController();
-    final TextEditingController expansiveAmount = TextEditingController();
+    final TextEditingController titleController = TextEditingController();
+    final TextEditingController bodyController = TextEditingController();
+    final TextEditingController balanceController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Add Expense'),
+          title: Text('Add Article'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                controller: expansiveName,
+                controller: titleController,
                 decoration: InputDecoration(
-                    hintText: 'Balance',
-                    labelText: 'Balance',
+                    hintText: 'Title',
+                    labelText: 'Title',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     )),
               ),
               SizedBox(height: 10.0),
               TextField(
-                controller: expansiveAmount,
+                maxLines: 3,
+                controller: bodyController,
+                decoration: InputDecoration(
+                    hintText: 'Description',
+                    labelText: 'Description',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    )),
+              ),
+              SizedBox(height: 10.0),
+              // balance add and minus
+              TextField(
+                controller: balanceController,
                 decoration: InputDecoration(
                     hintText: 'Amount',
                     labelText: 'Amount',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     )),
-              ),
+              )
             ],
           ),
           actions: [
@@ -338,7 +351,8 @@ class _HomeViewState extends State<HomeView> {
             ),
             TextButton(
               onPressed: () {
-                controller.addExpense(expansiveName.text, expansiveAmount.text);
+                controller.addExpense(titleController.text, bodyController.text,
+                    balanceController.text);
                 Navigator.pop(context);
               },
               child: Text('Add'),
