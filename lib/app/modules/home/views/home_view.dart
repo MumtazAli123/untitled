@@ -1,7 +1,5 @@
 // ignore_for_file: prefer_const_constructors , prefer_const_literals_to_create_immutables
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -10,10 +8,7 @@ import 'package:get_time_ago/get_time_ago.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:untitled/drawer/drawer.dart';
 
-import '../../../../models/user_model.dart';
-import '../../../../widgets/currency_format.dart';
 import '../../../../widgets/mix_widgets.dart';
-import '../../auth/views/mob_auth_view.dart';
 import '../../counter/controllers/counter_controller.dart';
 import '../controllers/home_controller.dart';
 
@@ -28,56 +23,7 @@ class _HomeViewState extends State<HomeView> {
   final HomeController controller = Get.put(HomeController());
   final CounterController counterController = Get.put(CounterController());
 
-  User? user = FirebaseAuth.instance.currentUser;
-  UserModel loggedInUser = UserModel();
-
-  @override
-  void initState() {
-    super.initState();
-    FirebaseFirestore.instance
-        .collection("users")
-        .doc(user!.uid)
-        .get()
-        .then((value) {
-      this.loggedInUser = UserModel.fromMap(value.data());
-      setState(() {});
-    });
-  }
-
-  Widget balanceCard() {
-    return Container(
-      height: 140,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Color.fromRGBO(245, 152, 53, 0.498),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              CurrencyFormat.convertToIdr(loggedInUser.balance ?? 0, 2),
-              style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 28),
-            ),
-            SizedBox(height: 4),
-            Text(
-              "Total Balance",
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-
-
+  var index = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -130,13 +76,8 @@ class _HomeViewState extends State<HomeView> {
                 'Log',
                 Get.isLogEnable ? 'Enabled' : 'Disabled',
                 snackPosition: SnackPosition.BOTTOM,
+
               );
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MobAuthView(),
-                  ),
-                  (route) => false);
 
             },
             icon: Icon(Icons.lock, color: Colors.green),
