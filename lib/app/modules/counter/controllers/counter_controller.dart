@@ -16,27 +16,6 @@ class CounterController extends GetxController {
   final province = ''.obs;
 
 
-  // permissionStatus = await location.hasPermission();
-  // void locationPermission() async {
-  //   loc.Location location = loc.Location();
-  //   PermissionStatus permissionStatus;
-  //   bool serviceEnabled;
-  //   serviceEnabled = await location.serviceEnabled();
-  //   if (!serviceEnabled) {
-  //     serviceEnabled = await location.requestService();
-  //     if (!serviceEnabled) {
-  //       return;
-  //     }
-  //   }
-  //
-  //   permissionStatus = await location.hasPermission();
-  //   if (permissionStatus == PermissionStatus.denied) {
-  //     permissionStatus = await location.requestPermission();
-  //     if (permissionStatus != PermissionStatus.granted) {
-  //       return;
-  //     }
-  //   }
-  // }
 
   @override
   void onInit() {
@@ -61,7 +40,11 @@ class CounterController extends GetxController {
     count.value++;
   }
 
-  void decrement() => count.value--;
+  void decrement() {
+    if (count.value > 0) {
+      count.value--;
+    }
+  }
 
   void getAddress(double? latitude, double? longitude) {
     placemarkFromCoordinates(latitude!, longitude!).then((value) {

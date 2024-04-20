@@ -17,10 +17,16 @@ class HomeController extends GetxController {
 
   var isRefresh = false.obs;
 
-  var isBalance = false.obs;
+  var totalIncome = 0.obs;
 
-  void increment() => totalBalance.value++;
-  void decrement() => totalBalance.value--;
+  var totalExpense = 0.obs;
+
+  void increment() => totalIncome.value++;
+  void decrement(double parse) {
+    if (totalExpense.value > 0) {
+      totalBalance.value--;
+    }
+  }
 
   void article() async {
     var snapshot = await FirebaseFirestore.instance.collection('article').get();
@@ -36,6 +42,7 @@ class HomeController extends GetxController {
       logger.i(timeAgo = snapshot.docs[0].data()['created_at']);
     }
   }
+
 
   @override
   void onInit() {

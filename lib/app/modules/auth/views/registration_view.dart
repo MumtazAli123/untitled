@@ -1,11 +1,13 @@
-// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, avoid_print
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_print
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:untitled/app/modules/auth/controllers/auth_controller.dart';
 
-import '../../../../widgets/mix_widgets.dart';
+import '../../../../models/user_model.dart';
+import 'mob_auth_view.dart';
 
 class RegistrationView extends StatefulWidget {
   const RegistrationView({super.key});
@@ -15,157 +17,321 @@ class RegistrationView extends StatefulWidget {
 }
 
 class _RegistrationViewState extends State<RegistrationView> {
-
-  final controller = Get.put(AuthController());
-
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
-
   final _formKey = GlobalKey<FormState>();
 
+  final fullName = new TextEditingController();
+  final username = new TextEditingController();
+  final email = new TextEditingController();
+  final password = new TextEditingController();
+  final confirm = new TextEditingController();
+  final balance = 0;
+  bool _obscureText = true;
 
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    nameController.dispose();
-    phoneController.dispose();
-    addressController.dispose();
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // controller.isLoading.value = false;
-  }
-
+  final _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme:  IconThemeData(color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
-        title: const Text('Registration '),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Get.toNamed('/auth');
-            },
-            icon: const Icon(Icons.lock, color: Colors.green),
-          ),
-          IconButton(
-            onPressed: () {
-              controller.streamArticle();
-            },
-            icon: controller.isRefresh.value
-                ? const Icon(Icons.refresh, color: Colors.green)
-                : const Icon(Icons.refresh_outlined, color: Colors.red),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          Center(
-            child: SizedBox(
-              width: 450,
-              child: Form(
-                key: _formKey,
-                child:
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    wTextFormFiled('Name', Icons.person, nameController, TextInputType.text),
-                    const SizedBox(height: 20.0),
-                    wTextFormFiled('Email', Icons.email, emailController, TextInputType.emailAddress),
-                    const SizedBox(height: 20.0),
-                    wTextFormFiled('Phone', Icons.phone, phoneController, TextInputType.phone),
-                    const SizedBox(height: 20.0),
-                    wTextFormFiled('Address', Icons.location_on, addressController, TextInputType.text),
-                    const SizedBox(height: 20.0),
-                    TextFormField(
-                      controller: passwordController,
-                      obscureText: controller.isLoading.value,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            controller.togglePassword();
-                          },
-                          icon: Icon(controller.isLoading.value ? Icons.visibility : Icons.visibility_off),
-                        ),
-                        hintText: 'Password',
-                        labelText: 'Password',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20.0),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          controller.register(
-                            nameController.text,
-                            emailController.text,
-                            phoneController.text,
-                            addressController.text,
-                            passwordController.text,
-                          );
-                          _formKey.currentState!.reset();
+    final fullNameField = TextFormField(
+      autofocus: false,
+      controller: fullName,
+      validator: (value) {
+        RegExp regex = new RegExp(r'^.{5,}$');
+        if (value!.isEmpty) {
+          return ("Full Name can't be empty");
+        }
 
-                        }else{
-                          Get.snackbar('Error', 'Please fill all fields');
-                        }
-                        Get.toNamed('/auth');
-                      },
-                      child: const Text('Register'),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('Already have an account?'),
-                        TextButton(
-                          onPressed: () {
-                            Get.toNamed('/auth');
-                          },
-                          child: const Text('Login', style: TextStyle(color: Colors.blue)),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+        if (!regex.hasMatch(value)) {
+          return ("Full Name should at least be 5 characters");
+        }
+      },
+      onSaved: (value) {
+        fullName.text = value!;
+      },
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.account_box),
+        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: 'Full Name',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+
+    final usernameField = TextFormField(
+      autofocus: false,
+      controller: username,
+      validator: (value) {
+        RegExp regex = RegExp(r'^.{5,}$');
+        if (value!.isEmpty) {
+          return ("Please Enter Your Full Name");
+        }
+
+        if (!regex.hasMatch(value)) {
+          return ("Username should at least be 5 characters");
+        }
+
+        return null;
+      },
+      onSaved: (value) {
+        username.text = value!;
+      },
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.person),
+        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: 'Username',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+
+    final emailField = TextFormField(
+      autofocus: false,
+      controller: email,
+      keyboardType: TextInputType.emailAddress,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return ("Please Enter Your Email");
+        }
+        if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]").hasMatch(value)) {
+          return ("Please Enter a valid email");
+        }
+        return null;
+      },
+      onSaved: (value) {
+        email.text = value!;
+      },
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.email_outlined),
+        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: 'Email',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+
+    final passwordField = Stack(
+      children: [
+        Container(
+          child: TextFormField(
+            autofocus: false,
+            controller: password,
+            obscureText: _obscureText,
+            validator: (value) {
+              RegExp regex = new RegExp(r'^.{6,}$');
+              if (value!.isEmpty) {
+                return ("Password is required for login");
+              }
+              if (!regex.hasMatch(value)) {
+                return ("Enter Valid Password(Min. 6 Character)");
+              }
+            },
+            onSaved: (value) {
+              password.text = value!;
+            },
+            textInputAction: TextInputAction.done,
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.vpn_key),
+              contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+              hintText: 'Password',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
           ),
-          SizedBox(height: 60.0),
-          Obx(() {
-            if (controller.isLoading.value) {
-              return Container(
-                color: Colors.black.withOpacity(0.5),
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          }),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: IconButton(
+            onPressed: () {
+              setState(() {
+                _obscureText = !_obscureText;
+              });
+            },
+            icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
+          ),
+        )
+      ],
+    );
 
-        ],
+    final confirmPasswordField = Stack(
+      children: [
+        Container(
+          child: TextFormField(
+            autofocus: false,
+            controller: confirm,
+            obscureText: _obscureText,
+            validator: (value) {
+              if (password.value != confirm.value) {
+                return ("Password don't match");
+              }
+
+              return null;
+            },
+            onSaved: (value) {
+              confirm.text = value!;
+            },
+            textInputAction: TextInputAction.done,
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.vpn_key),
+              contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+              hintText: 'Confirm Password',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: IconButton(
+            onPressed: () {
+              setState(() {
+                _obscureText = !_obscureText;
+              });
+            },
+            icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
+          ),
+        )
+      ],
+    );
+
+    final registerButton = Material(
+      elevation: 5,
+      borderRadius: BorderRadius.circular(30),
+      color: Color.fromRGBO(242, 174, 100, 1),
+      child: MaterialButton(
+        padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        minWidth: double.infinity,
+        onPressed: () {
+          signUp(email.text, password.text);
+        },
+        child: Text(
+          'Register',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
+
+    return Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_rounded,
+              color: Colors.white,
+            ),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MobAuthView(),
+              ),
+            ),
+          ),
+        ),
+        backgroundColor: Colors.white,
+        body: Center(
+          child: SingleChildScrollView(
+            child: Container(
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(36.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(
+                        height: 200,
+                        child: Image.asset(
+                          "assets/images/wallet.png",
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      SizedBox(height: 30),
+                      fullNameField,
+                      SizedBox(height: 15),
+                      usernameField,
+                      SizedBox(height: 15),
+                      emailField,
+                      SizedBox(height: 15),
+                      passwordField,
+                      SizedBox(height: 15),
+                      confirmPasswordField,
+                      SizedBox(height: 30),
+                      registerButton,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ));
   }
 
-  togglePassword() {
-    controller.isLoading.value = !controller.isLoading.value;
+  void signUp(String email, String password) async {
+    if (_formKey.currentState!.validate()) {
+      // Check if the username is unique before registering
+      bool isUsernameUnique = await isUsernameAvailable(username.text);
 
+      if (isUsernameUnique) {
+        await _auth
+            .createUserWithEmailAndPassword(email: email, password: password)
+            .then((value) => postDetailsToFireStore())
+            .catchError((e) {
+          Fluttertoast.showToast(msg: e!.message);
+        });
+      } else {
+        Fluttertoast.showToast(msg: "Username is already taken");
+      }
+    }
+  }
+
+  Future<bool> isUsernameAvailable(String username) async {
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    final query = await firebaseFirestore
+        .collection("users")
+        .where("username", isEqualTo: username)
+        .get();
+    return query.docs.isEmpty;
+  }
+
+  postDetailsToFireStore() async {
+    FirebaseFirestore firebaseFirestore =
+        FirebaseFirestore.instance; // to call firestore
+    User? user = _auth.currentUser; // to call user model
+
+    UserModel userModel = UserModel(); // sending the values
+
+    userModel.email = user!.email;
+    userModel.uid = user.uid;
+    userModel.fullName = fullName.text;
+    userModel.username = username.text;
+    userModel.balance = 0;
+
+    await firebaseFirestore
+        .collection("users")
+        .doc(user.uid)
+        .set(userModel.toMap());
+
+    Fluttertoast.showToast(msg: "Account created successfully");
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MobAuthView(),
+      ),
+      (route) => false,
+    );
   }
 }

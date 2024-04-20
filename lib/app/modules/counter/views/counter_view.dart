@@ -76,7 +76,10 @@ class _CounterViewState extends State<CounterView> {
             color: Theme.of(context).brightness == Brightness.light
                 ? Colors.black
                 : Colors.white),
-        title:  Text('${controller.city}'),
+        title:   Obx(() => Text(
+          '${controller.count}',
+          style: Theme.of(context).textTheme.displayMedium,
+        )),
         centerTitle: true,
       ),
       body: Center(
