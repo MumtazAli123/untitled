@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:untitled/drawer/drawer.dart';
 
 import '../../../../widgets/mix_widgets.dart';
+import '../../auth/views/mob_auth_view.dart';
 import '../../counter/controllers/counter_controller.dart';
 import '../controllers/home_controller.dart';
 
@@ -77,6 +78,14 @@ class _HomeViewState extends State<HomeView> {
                 Get.isLogEnable ? 'Enabled' : 'Disabled',
                 snackPosition: SnackPosition.BOTTOM,
 
+
+              );
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MobAuthView(),
+                ),
+                    (route) => false,
               );
 
             },

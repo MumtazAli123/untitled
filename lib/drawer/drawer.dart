@@ -2,7 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:untitled/app/modules/budget/views/budget_view.dart';
 import 'package:untitled/app/modules/counter/views/counter_view.dart';
+
+import '../app/modules/auth/views/mob_auth_view.dart';
 
 class MyDrawer extends StatelessWidget {
   const MyDrawer({super.key});
@@ -45,6 +48,7 @@ class MyDrawer extends StatelessWidget {
             title: Text('Budget'),
             leading: Icon(Icons.person),
             onTap: () {
+              // if login then go to budget else go to auth
               Get.toNamed('/budget');
             },
           ),

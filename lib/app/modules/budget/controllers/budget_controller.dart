@@ -8,70 +8,38 @@ class BudgetController extends GetxController {
 
 
 
-  List incomeName = [];
-  List incomeAmount = [];
-  List expensesName = [];
-  List expensesAmount = [];
+  var totalBudget = 0.0.obs;
+  var totalExpense = 0.0.obs;
 
-  final totalIncome = 0.0.obs;
-  final totalExpenses = 0.0.obs;
+  var isRefresh = false.obs;
 
-  double budgetLeft = 0.0;
+  // refresh the page
+
+  @override
+  void refresh() {
+    totalBudget.value = 0;
+    totalExpense.value = 0;
+    calculate();
+  }
 
 
 
   void calculate() {
-    for (var i = 0; i < incomeAmount.length; i++) {
-      // totalIncome.value += double.parse(incomeAmount[i]);
-      totalIncome.value += incomeAmount[i];
-    }
-    for (var i = 0; i < expensesAmount.length; i++) {
-      // totalExpenses.value += double.parse(expensesAmount[i]);
-      totalExpenses.value += expensesAmount[i];
-    }
+    totalBudget.value = 0;
+    totalExpense.value = 0;
+    addBudget.collection('budget').get().then((value) {
+      value.docs.forEach((element) {
+        totalBudget.value += element['amount'];
+      });
+    });
+
+    addBudget.collection('expense').get().then((value) {
+      value.docs.forEach((element) {
+        totalExpense.value += element['amount'];
+      });
+    });
   }
 
-  // budgetLeft = totalIncome.value - totalExpenses.value;
-
-  void increment() {
-    totalIncome.value++;
-  }
-
-  void decrement() {
-   totalExpenses.value--;
-  }
-
-  void updateb() {
-    budgetLeft = totalIncome.value - totalExpenses.value;
-  }
-
-  void addIncome(String name, double amount) {
-    incomeName.add(name);
-    incomeAmount.add(amount);
-    calculate();
-    update();
-  }
-
-  void addExpenses(String name, double amount) {
-    expensesName.add(name);
-    expensesAmount.add(amount);
-    calculate();
-    update();
-  }
-
-  void deleteIncome(int index) {
-    incomeName.removeAt(index);
-    incomeAmount.removeAt(index);
-    calculate();
-    update();
-  }
-
-  void deleteExpenses(int index) {
-    expensesName.removeAt(index);
-    expensesAmount.removeAt(index);
-    calculate();
-    update();
-  }
 
   @override
   void onInit() {

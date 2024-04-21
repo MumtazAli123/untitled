@@ -4,7 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:untitled/app/modules/home/views/home_view.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 
 import '../../../../models/user_model.dart';
 
@@ -21,7 +22,7 @@ class _SendViewState extends State<SendView> {
   UserModel loggedInUser = UserModel();
   List<UserModel> otherUsers = [];
   final TextEditingController transferNominalController =
-      TextEditingController();
+  TextEditingController();
 
   @override
   void initState() {
@@ -34,13 +35,13 @@ class _SendViewState extends State<SendView> {
 
   Future<void> fetchLoggedInUserBalance(String uid) async {
     DocumentReference userDoc =
-        FirebaseFirestore.instance.collection('users').doc(uid);
+    FirebaseFirestore.instance.collection('users').doc(uid);
 
     DocumentSnapshot docSnapshot = await userDoc.get();
 
     if (docSnapshot.exists) {
       Map<String, dynamic>? userData =
-          docSnapshot.data() as Map<String, dynamic>?;
+      docSnapshot.data() as Map<String, dynamic>?;
 
       if (userData != null) {
         double userBalance = userData['balance'] ?? 0;
@@ -54,7 +55,7 @@ class _SendViewState extends State<SendView> {
 
   Future<void> fetchUserData() async {
     CollectionReference usersCollection =
-        FirebaseFirestore.instance.collection('users');
+    FirebaseFirestore.instance.collection('users');
 
     QuerySnapshot querySnapshot = await usersCollection.get();
 
@@ -62,13 +63,14 @@ class _SendViewState extends State<SendView> {
 
     for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
       Map<String, dynamic> userData =
-          documentSnapshot.data() as Map<String, dynamic>;
+      documentSnapshot.data() as Map<String, dynamic>;
 
       String uid = documentSnapshot.id;
 
       if (uid != user?.uid) {
         UserModel otherUser = UserModel(
           username: userData['username'],
+          fullName: userData['fullName'],
           uid: uid,
           balance: userData['balance'] ?? 0,
         );
@@ -79,50 +81,48 @@ class _SendViewState extends State<SendView> {
     }
   }
 
-  void sendMoneyToUser(UserModel recipient) async {
-    if (user != null) {
-      String enteredValue = transferNominalController.text;
-
-      int transferAmount = int.tryParse(enteredValue) ?? 0;
-
-      if (loggedInUser.balance != null &&
-          loggedInUser.balance! >= transferAmount) {
-        double updatedBalance = loggedInUser.balance! - transferAmount;
-
-        double recipientUpdatedBalance = (recipient.balance!) + transferAmount;
-
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user!.uid)
-            .update({'balance': updatedBalance});
-
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(recipient.uid)
-            .update({'balance': recipientUpdatedBalance});
-
-        setState(() {
-          loggedInUser.balance = updatedBalance;
-        });
-
-        Get.snackbar('Success', 'Money sent successfully');
-
-
-
-
-        // Navigator.pushAndRemoveUntil(
-        //     context,
-        //     MaterialPageRoute(builder: (context) => HomeView()),
-        //     (route) => false);
-
-        Get.offAll(HomeView());
-
-      } else {
-
-        Get.snackbar('Error', 'Insufficient balance to send money');
-      }
-    }
-  }
+  // void sendMoneyToUser(UserModel recipient) async {
+  //   if (user != null) {
+  //     String enteredValue = transferNominalController.text;
+  //
+  //     int transferAmount = int.tryParse(enteredValue) ?? 0;
+  //
+  //     if (loggedInUser.balance != null &&
+  //         loggedInUser.balance! >= transferAmount) {
+  //       double updatedBalance = loggedInUser.balance! - transferAmount;
+  //
+  //       double recipientUpdatedBalance = (recipient.balance!) + transferAmount;
+  //
+  //       await FirebaseFirestore.instance
+  //           .collection('users')
+  //           .doc(user!.uid)
+  //           .update({'balance': updatedBalance});
+  //
+  //       await FirebaseFirestore.instance
+  //           .collection('users')
+  //           .doc(recipient.uid)
+  //           .update({'balance': recipientUpdatedBalance});
+  //
+  //       setState(() {
+  //         loggedInUser.balance = updatedBalance;
+  //       });
+  //
+  //       Get.snackbar('Success', 'Money sent successfully',
+  //           backgroundColor: Colors.green,
+  //           colorText: Colors.white,
+  //           snackPosition: SnackPosition.BOTTOM);
+  //
+  //       _buildDialogWithDataReceiver(
+  //           recipient.username, transferAmount, recipient.fullName!);
+  //
+  //     } else {
+  //       Get.snackbar('Error', 'Insufficient balance to send money',
+  //           backgroundColor: Colors.red,
+  //           colorText: Colors.white,
+  //           snackPosition: SnackPosition.BOTTOM);
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -155,58 +155,7 @@ class _SendViewState extends State<SendView> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  content: Stack(
-                                    clipBehavior: Clip.none,
-                                    children: <Widget>[
-                                      Positioned(
-                                        right: -40.0,
-                                        top: -40.0,
-                                        child: InkResponse(
-                                          onTap: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: CircleAvatar(
-                                            backgroundColor: Colors.red,
-                                            child: Icon(Icons.close),
-                                          ),
-                                        ),
-                                      ),
-                                      Form(
-                                        key: _formKey,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            Text('Enter Amount'),
-                                            Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: TextFormField(
-                                                controller:
-                                                    transferNominalController,
-                                                decoration: InputDecoration(
-                                                    hintText: 'Input Nominal'),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: ElevatedButton(
-                                                child: Text("Submit"),
-                                                onPressed: () {
-                                                  sendMoneyToUser(recipient);
-                                                },
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              });
+                          _buildDialogSendMoney(recipient);
                         },
                         child: Text('Send Money'),
                       ),
@@ -218,6 +167,89 @@ class _SendViewState extends State<SendView> {
           );
         }).toList(),
       ),
+    );
+  }
+
+
+
+  void sendMoneyToUser(UserModel recipient) {
+    if (user != null) {
+      String enteredValue = transferNominalController.text;
+
+      int transferAmount = int.tryParse(enteredValue) ?? 0;
+
+      if (loggedInUser.balance != null &&
+          loggedInUser.balance! >= transferAmount) {
+        double updatedBalance = loggedInUser.balance! - transferAmount;
+
+        double recipientUpdatedBalance = (recipient.balance!) + transferAmount;
+
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(user!.uid)
+            .update({'balance': updatedBalance});
+
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(recipient.uid)
+            .update({'balance': recipientUpdatedBalance});
+
+        setState(() {
+          loggedInUser.balance = updatedBalance;
+        });
+
+        _buildDialogWithDataReceiver(
+            recipient.username, transferAmount, recipient.fullName!);
+      } else {
+        QuickAlert.show(
+          barrierDismissible: false,
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Error',
+          text: 'Insufficient balance to send money',
+        );
+      }
+    }
+  }
+
+  void _buildDialogSendMoney(UserModel recipient) {
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.custom,
+      barrierDismissible: true,
+      confirmBtnText: 'Save',
+      customAsset: 'assets/images/wallet.png',
+      title: 'Send Money',
+      text: " Enter the amount you want to send to ${recipient.fullName}",
+      textAlignment: TextAlign.center,
+      widget: TextFormField(
+        controller: transferNominalController,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          labelText: 'Enter amount',
+          hintText: 'Enter amount',
+        ),
+      ),
+      onConfirmBtnTap: () async {
+        Get.back();
+        sendMoneyToUser(recipient);
+
+      },
+    );
+  }
+  void _buildDialogWithDataReceiver(String? username, int transferAmount,
+      String fullName) {
+    QuickAlert.show(
+      barrierDismissible: false,
+      context: context,
+      type: QuickAlertType.success,
+      title: 'Success',
+      text:
+      'Money sent to $fullName\nAmount: $transferAmount\nReceiver: $username',
+      textAlignment: TextAlign.start,
+      onConfirmBtnTap: () {
+        Get.toNamed('/budget');
+      },
     );
   }
 }

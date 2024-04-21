@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:untitled/app/modules/budget/views/send_view.dart';
 import 'package:untitled/app/modules/budget/views/topup_view.dart';
+import 'package:untitled/app/modules/home/controllers/home_controller.dart';
 
 import '../../../../models/user_model.dart';
 import '../../../../widgets/currency_format.dart';
@@ -21,6 +22,8 @@ class _BudgetViewState extends State<BudgetView> {
   User? user = FirebaseAuth.instance.currentUser;
   UserModel loggedInUser = UserModel();
 
+  final HomeController controller = Get.put(HomeController());
+
   @override
   void initState() {
     super.initState();
@@ -29,18 +32,21 @@ class _BudgetViewState extends State<BudgetView> {
         .doc(user!.uid)
         .get()
         .then((value) {
-      this.loggedInUser = UserModel.fromMap(value.data());
+      loggedInUser = UserModel.fromMap(value.data());
       setState(() {});
     });
+
+    controller.streamArticle();
   }
 
   Widget balanceCard() {
     return Container(
-      height: 140,
-      width: double.infinity,
+      margin: EdgeInsets.symmetric(horizontal: 6),
+      height: 200,
+      width: 400,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Color.fromRGBO(245, 152, 53, 0.498),
+        borderRadius: BorderRadius.circular(15),
+        color: Color(0xff3f63ff),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -49,17 +55,35 @@ class _BudgetViewState extends State<BudgetView> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              CurrencyFormat.convertToIdr(loggedInUser.balance ?? 0, 2),
+              "Total Balance",
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            SizedBox(height: 4),
+            Text(
+              "PKR: ${currencyFormat(loggedInUser.balance)}",
+              //
+
               style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w500,
                   fontSize: 28),
             ),
             SizedBox(height: 4),
+            Divider(color: Colors.white),
+            //   in word like three thousand four hundred and fifty first word is capital
             Text(
-              "Total Balance",
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            )
+                "Bal, ${NumberToWord().convert(loggedInUser.balance!.toInt())}",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14),
+              ),
+              SizedBox(height: 4),
+              Text(
+                "Last Updated: ${DateTime.now().toString().substring(0, 16)}",
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
+
           ],
         ),
       ),
@@ -101,48 +125,65 @@ class _BudgetViewState extends State<BudgetView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.all(20),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              height: 50,
+              child: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Image.asset(
+                  "assets/images/wallet.png",
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            ActionChip(
+              label: Text("Logout"),
+              onPressed: () {
+                logout(context);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () {},
+          ),
+          //   refreshButton(),
+          IconButton(
+            onPressed: () {
+              controller.streamArticle();
+            },
+            icon: controller.isRefresh.value
+                ? Icon(Icons.refresh, color: Colors.green)
+                : Icon(Icons.refresh_outlined, color: Colors.red),
+          ),
+        ],
+      ),
+      body: FutureBuilder(
+        future: FirebaseFirestore.instance
+            .collection("users")
+            .doc(user!.uid)
+            .get(),
+        builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          return SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      height: 50,
-                      child: Image.asset(
-                        "assets/images/back.png",
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    ActionChip(
-                      label: Text("Logout"),
-                      onPressed: () {
-                        logout(context);
-                      },
-                    ),
-                  ],
-                ),
-                SizedBox(height: 30),
-                Text(
-                  "Welcome Back, ${loggedInUser.fullName}",
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700),
-                ),
-                SizedBox(height: 15),
+              children: [
                 balanceCard(),
-                SizedBox(height: 15),
+                SizedBox(height: 20),
                 _buildCategories(),
               ],
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -153,7 +194,7 @@ class _BudgetViewState extends State<BudgetView> {
   }
 
   Column _buildCategoryCard(
-      {Color? bgColor, Color? iconColor, IconData? iconData, String? text}) {
+      {Color? bgColor, Color? iconColor, IconData? iconData, text}) {
     return Column(
       children: <Widget>[
         Container(
@@ -174,4 +215,11 @@ class _BudgetViewState extends State<BudgetView> {
       ],
     );
   }
+
+  currencyFormat(double? balance) {
+    // as per thousand separator
+    return balance?.toStringAsFixed(2).replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
+  }
 }
+

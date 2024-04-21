@@ -24,6 +24,7 @@ class _RegistrationViewState extends State<RegistrationView> {
   final email = new TextEditingController();
   final password = new TextEditingController();
   final confirm = new TextEditingController();
+  final number = new TextEditingController();
   final balance = 0;
   bool _obscureText = true;
 
@@ -108,6 +109,32 @@ class _RegistrationViewState extends State<RegistrationView> {
         prefixIcon: Icon(Icons.email_outlined),
         contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
         hintText: 'Email',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+    final numberField = TextFormField(
+      autofocus: false,
+      controller: number,
+      keyboardType: TextInputType.number,
+      validator: (value) {
+        if (value!.isEmpty) {
+          return ("Please Enter Your Phone Number");
+        }
+        if (value.length < 10) {
+          return ("Please Enter a valid Phone Number");
+        }
+        return null;
+      },
+      onSaved: (value) {
+        number.text = value!;
+      },
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.phone),
+        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: 'Phone Number',
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -209,6 +236,7 @@ class _RegistrationViewState extends State<RegistrationView> {
         minWidth: double.infinity,
         onPressed: () {
           signUp(email.text, password.text);
+
         },
         child: Text(
           'Register',
@@ -265,6 +293,8 @@ class _RegistrationViewState extends State<RegistrationView> {
                       SizedBox(height: 15),
                       emailField,
                       SizedBox(height: 15),
+                      numberField,
+                      SizedBox(height: 15),
                       passwordField,
                       SizedBox(height: 15),
                       confirmPasswordField,
@@ -317,6 +347,7 @@ class _RegistrationViewState extends State<RegistrationView> {
     userModel.uid = user.uid;
     userModel.fullName = fullName.text;
     userModel.username = username.text;
+    userModel.number = number.text;
     userModel.balance = 0;
 
     await firebaseFirestore
