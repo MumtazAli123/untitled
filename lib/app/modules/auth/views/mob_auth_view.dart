@@ -6,11 +6,15 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:untitled/app/modules/auth/views/registration_view.dart';
 import 'package:untitled/app/modules/home/views/home_view.dart';
+import 'package:untitled/models/user_model.dart';
 
 import '../../../../widgets/mix_widgets.dart';
 
 class MobAuthView extends StatefulWidget {
-  const MobAuthView({super.key});
+
+ final UserModel?  user = UserModel();
+
+   MobAuthView({super.key,});
 
   @override
   State<MobAuthView> createState() => _MobAuthViewState();

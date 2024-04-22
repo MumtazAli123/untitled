@@ -75,4 +75,17 @@ wDialogBox(BuildContext context, String title, String content, Function() onPres
   );
 }
 
+// customButton
+
+wButton(String text, Function() onPressed, {Color? color, Color? textColor, double? width, double? height}) {
+  return MaterialButton(
+    onPressed: onPressed,
+    color: color,
+    textColor: textColor,
+    minWidth: width,
+    height: height,
+    child: wText(text),
+  );
+}
+
 

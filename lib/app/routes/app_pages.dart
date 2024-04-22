@@ -1,6 +1,6 @@
-
 import 'package:get/get.dart';
 import 'package:untitled/app/modules/auth/views/mob_auth_view.dart';
+import 'package:untitled/splash/splash_screen.dart';
 
 import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/auth_view.dart';
@@ -16,7 +16,7 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.HOME;
+  static const INITIAL = Routes.SPLASH;
 
   static final routes = [
     GetPage(
@@ -48,7 +48,12 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.Login,
-      page: () => const MobAuthView(),
+      page: () => MobAuthView(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: _Paths.SPLASH,
+      page: () => SplashScreen(),
       binding: AuthBinding(),
     ),
   ];
