@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:pinput/pinput.dart';
 
 import '../../../../models/user_model.dart';
 import 'mob_auth_view.dart';
@@ -19,14 +20,16 @@ class RegistrationView extends StatefulWidget {
 class _RegistrationViewState extends State<RegistrationView> {
   final _formKey = GlobalKey<FormState>();
 
-  final fullName = new TextEditingController();
-  final username = new TextEditingController();
-  final email = new TextEditingController();
-  final password = new TextEditingController();
-  final confirm = new TextEditingController();
-  final number = new TextEditingController();
+  final fullName = TextEditingController();
+  final username = TextEditingController();
+  final email = TextEditingController();
+  final password = TextEditingController();
+  final confirm = TextEditingController();
+  final number = TextEditingController();
   final balance = 0;
   bool _obscureText = true;
+
+  final date = DateTime.now();
 
   final _auth = FirebaseAuth.instance;
 
@@ -36,7 +39,7 @@ class _RegistrationViewState extends State<RegistrationView> {
       autofocus: false,
       controller: fullName,
       validator: (value) {
-        RegExp regex = new RegExp(r'^.{5,}$');
+        RegExp regex = RegExp(r'^.{5,}$');
         if (value!.isEmpty) {
           return ("Full Name can't be empty");
         }
@@ -44,6 +47,7 @@ class _RegistrationViewState extends State<RegistrationView> {
         if (!regex.hasMatch(value)) {
           return ("Full Name should at least be 5 characters");
         }
+        return null;
       },
       onSaved: (value) {
         fullName.text = value!;
@@ -144,18 +148,20 @@ class _RegistrationViewState extends State<RegistrationView> {
     final passwordField = Stack(
       children: [
         Container(
+          alignment: Alignment.centerLeft,
           child: TextFormField(
             autofocus: false,
             controller: password,
             obscureText: _obscureText,
             validator: (value) {
-              RegExp regex = new RegExp(r'^.{6,}$');
+              RegExp regex = RegExp(r'^.{6,}$');
               if (value!.isEmpty) {
                 return ("Password is required for login");
               }
               if (!regex.hasMatch(value)) {
                 return ("Enter Valid Password(Min. 6 Character)");
               }
+              return null;
             },
             onSaved: (value) {
               password.text = value!;
@@ -188,6 +194,7 @@ class _RegistrationViewState extends State<RegistrationView> {
     final confirmPasswordField = Stack(
       children: [
         Container(
+          alignment: Alignment.centerLeft,
           child: TextFormField(
             autofocus: false,
             controller: confirm,
@@ -251,56 +258,61 @@ class _RegistrationViewState extends State<RegistrationView> {
     );
 
     return Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_rounded,
-              color: Colors.white,
-            ),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MobAuthView(),
-              ),
-            ),
-          ),
-        ),
         backgroundColor: Colors.white,
-        body: Center(
-          child: SingleChildScrollView(
-            child: Container(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(36.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      SizedBox(
-                        height: 200,
-                        child: Image.asset(
-                          "assets/images/wallet.png",
-                          fit: BoxFit.contain,
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              child: Container(
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(36.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        SizedBox(
+                          height: 150,
+                          child: Image.asset(
+                            "assets/images/wallet.png",
+                            fit: BoxFit.contain,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 30),
-                      fullNameField,
-                      SizedBox(height: 15),
-                      usernameField,
-                      SizedBox(height: 15),
-                      emailField,
-                      SizedBox(height: 15),
-                      numberField,
-                      SizedBox(height: 15),
-                      passwordField,
-                      SizedBox(height: 15),
-                      confirmPasswordField,
-                      SizedBox(height: 30),
-                      registerButton,
-                    ],
+                        SizedBox(height: 30),
+                        fullNameField,
+                        SizedBox(height: 15),
+                        usernameField,
+                        SizedBox(height: 15),
+                        emailField,
+                        SizedBox(height: 15),
+                        numberField,
+                        SizedBox(height: 15),
+                        passwordField,
+                        SizedBox(height: 15),
+                        confirmPasswordField,
+                        SizedBox(height: 30),
+                        registerButton,
+                        SizedBox(height: 15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("Already have an account?"),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MobAuthView(),
+                                  ),
+                                );
+                              },
+                              child: Text("Login"),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -349,6 +361,8 @@ class _RegistrationViewState extends State<RegistrationView> {
     userModel.username = username.text;
     userModel.number = number.text;
     userModel.balance = 0;
+    // userModel.createdAt = date;
+    // userModel.updatedAt = date;
 
     await firebaseFirestore
         .collection("users")
@@ -357,12 +371,177 @@ class _RegistrationViewState extends State<RegistrationView> {
 
     Fluttertoast.showToast(msg: "Account created successfully");
 
-    Navigator.pushAndRemoveUntil(
+    Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MobAuthView(),
+        builder: (context) => OTPView(),
       ),
-      (route) => false,
+    );
+
+  }
+
+}
+
+class OTPView extends StatefulWidget {
+  const OTPView({super.key});
+
+  @override
+  State<OTPView> createState() => _OTPViewState();
+}
+
+class _OTPViewState extends State<OTPView> {
+
+  final defaultPinTheme = PinTheme(
+    width: 56,
+    height: 56,
+    textStyle: TextStyle(
+      color: Colors.green,
+      fontSize: 24,
+    ),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(
+        color: Colors.black,
+        width: 2,
+      ),
+    ),
+  );
+  final submittedPinTheme = PinTheme(
+    width: 56,
+    height: 56,
+    textStyle: TextStyle(
+      color: Colors.red,
+      fontSize: 24,
+    ),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(
+        color: Colors.red,
+        width: 2,
+      ),
+    ),
+  );
+  final focusedPinTheme = PinTheme(
+    width: 56,
+    height: 56,
+    textStyle: TextStyle(
+      color: Colors.green,
+      fontSize: 24,
+    ),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(
+        color: Colors.green,
+        width: 2,
+      ),
+    ),
+  );
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            child: Container(
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(36.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      height: 150,
+                      child: Image.asset(
+                        "assets/images/login.png",
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    Text(
+                      "Enter OTP",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 15),
+                  Pinput(
+                    focusedPinTheme: submittedPinTheme,
+                    submittedPinTheme: focusedPinTheme,
+
+                    length: 6,
+                    // defaultPinTheme: defaultPinTheme,
+                    validator: (s) {
+                      return s == '123456' ? null : 'Invalid OTP';
+                    },
+                    pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
+
+                    showCursor: true,
+                    onCompleted: (pin) => print(pin),
+                  ),
+                    SizedBox(height: 30),
+                    Material(
+                      elevation: 5,
+                      borderRadius: BorderRadius.circular(30),
+                      color: Color.fromRGBO(242, 174, 100, 1),
+                      child: MaterialButton(
+                        padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+                        minWidth: double.infinity,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MobAuthView(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Verify',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Didn't receive the code?"),
+                        TextButton(
+                          onPressed: () {
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => MobAuthView(),
+                            //   ),
+                            // );
+                          },
+                          child: Text("Resend"),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
+
+
+
+

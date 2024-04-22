@@ -215,10 +215,12 @@ class _SendViewState extends State<SendView> {
   void _buildDialogSendMoney(UserModel recipient) {
     QuickAlert.show(
       context: context,
-      type: QuickAlertType.custom,
+      // alert
+      type: QuickAlertType.warning,
       barrierDismissible: true,
-      confirmBtnText: 'Save',
-      customAsset: 'assets/images/wallet.png',
+      confirmBtnText: 'Send Money',
+
+      // customAsset: 'assets/images/wallet.png',
       title: 'Send Money',
       text: " Enter the amount you want to send to ${recipient.fullName}",
       textAlignment: TextAlign.center,

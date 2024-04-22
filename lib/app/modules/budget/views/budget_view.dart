@@ -174,14 +174,14 @@ class _BudgetViewState extends State<BudgetView> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                balanceCard(),
-                SizedBox(height: 20),
-                _buildCategories(),
-              ],
-            ),
+          return Column(
+            children: <Widget>[
+              balanceCard(),
+              SizedBox(height: 20),
+              _buildCategories(),
+              SizedBox(height: 20),
+
+            ],
           );
         },
       ),
@@ -190,7 +190,7 @@ class _BudgetViewState extends State<BudgetView> {
 
   Future<void> logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
-    Get.toNamed('/auth');
+    Get.offAllNamed('/login');
   }
 
   Column _buildCategoryCard(
@@ -221,5 +221,6 @@ class _BudgetViewState extends State<BudgetView> {
     return balance?.toStringAsFixed(2).replaceAllMapped(
         RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
   }
+
 }
 

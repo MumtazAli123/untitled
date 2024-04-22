@@ -1,5 +1,6 @@
 
 import 'package:get/get.dart';
+import 'package:untitled/app/modules/auth/views/mob_auth_view.dart';
 
 import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/auth_view.dart';
@@ -44,6 +45,11 @@ class AppPages {
       name: _Paths.BUDGET,
       page: () => const BudgetView(),
       binding: BudgetBinding(),
+    ),
+    GetPage(
+      name: _Paths.Login,
+      page: () => const MobAuthView(),
+      binding: AuthBinding(),
     ),
   ];
 }

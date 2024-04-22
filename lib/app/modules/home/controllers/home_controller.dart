@@ -21,6 +21,10 @@ class HomeController extends GetxController {
 
   var totalExpense = 0.obs;
 
+  var isLoading = false.obs;
+
+  var articles = [].obs;
+
   void increment() => totalIncome.value++;
   void decrement(double parse) {
     if (totalExpense.value > 0) {
@@ -118,4 +122,22 @@ class HomeController extends GetxController {
       article();
     });
   }
+
+  void sendMoneyToUser(articl) {
+    if (totalBalance.value >= 0) {
+      double updatedBalance = totalBalance.value - 0;
+
+      double recipientUpdatedBalance = (articl['balance']) + 0;
+
+      FirebaseFirestore.instance
+          .collection('article')
+          .doc(articl.id)
+          .update({'balance': updatedBalance});
+
+      FirebaseFirestore.instance
+          .collection('article')
+          .doc(articl.id)
+          .update({'balance': recipientUpdatedBalance});
+  }
+}
 }
