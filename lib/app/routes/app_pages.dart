@@ -1,6 +1,9 @@
+// ignore_for_file: prefer_const_constructors , prefer_const_literals_to_create_immutables
+
 import 'package:get/get.dart';
 import 'package:untitled/app/modules/auth/views/mob_auth_view.dart';
 import 'package:untitled/splash/splash_screen.dart';
+import 'package:untitled/widgets/phone.dart';
 
 import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/auth_view.dart';
@@ -54,6 +57,11 @@ class AppPages {
     GetPage(
       name: _Paths.SPLASH,
       page: () => SplashScreen(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: _Paths.PHONE,
+      page: () => PhoneView(),
       binding: AuthBinding(),
     ),
   ];

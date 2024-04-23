@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:untitled/app/modules/auth/views/registration_view.dart';
 import 'package:untitled/app/modules/home/views/home_view.dart';
 import 'package:untitled/models/user_model.dart';
+import 'package:untitled/widgets/phone.dart';
 
 import '../../../../widgets/mix_widgets.dart';
 
@@ -144,7 +145,7 @@ class _MobAuthViewState extends State<MobAuthView> {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => RegistrationView(),
+                builder: (context) => PhoneView(),
               ),
             ),
           )
@@ -163,6 +164,7 @@ class _MobAuthViewState extends State<MobAuthView> {
       body: Center(
         child: SingleChildScrollView(
           child: Container(
+            alignment: Alignment.center,
             // color: Colors.white,
             child: Padding(
               padding: const EdgeInsets.all(36.0),

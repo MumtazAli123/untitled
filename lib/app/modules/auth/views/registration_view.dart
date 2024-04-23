@@ -257,12 +257,12 @@ class _RegistrationViewState extends State<RegistrationView> {
     );
 
     return Scaffold(
-        backgroundColor: Colors.white,
+        // backgroundColor: Colors.white,
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
               child: Container(
-                color: Colors.white,
+                alignment: Alignment.center,
                 child: Padding(
                   padding: const EdgeInsets.all(36.0),
                   child: Form(
@@ -370,11 +370,12 @@ class _RegistrationViewState extends State<RegistrationView> {
 
     Fluttertoast.showToast(msg: "Account created successfully");
 
-    Navigator.push(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (context) => OTPView(),
+        builder: (context) => MobAuthView(),
       ),
+      (route) => false,
     );
 
   }

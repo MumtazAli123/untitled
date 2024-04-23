@@ -6,7 +6,7 @@ import 'package:pinput/pinput.dart';
 import '../app/modules/auth/views/mob_auth_view.dart';
 
 class OTPView extends StatefulWidget {
-  const OTPView({super.key});
+  const OTPView({super.key,  String? verificationId});
 
   @override
   State<OTPView> createState() => _OTPViewState();

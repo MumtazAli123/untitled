@@ -9,6 +9,7 @@ abstract class Routes {
   static const BUDGET = _Paths.BUDGET;
   static const Login = _Paths.Login;
   static const SPLASH = _Paths.SPLASH;
+  static const PHONE = _Paths.PHONE;
 }
 
 abstract class _Paths {
@@ -19,4 +20,5 @@ abstract class _Paths {
   static const BUDGET = '/budget';
   static const Login = '/login';
   static const SPLASH = '/splash';
+  static const PHONE = '/phone';
 }

@@ -128,6 +128,12 @@ class _BudgetViewState extends State<BudgetView> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.backspace_sharp),
+          onPressed: () {
+            Get.toNamed('/home');
+          },
+        ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

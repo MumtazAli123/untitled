@@ -15,6 +15,18 @@ wText(String upperCase, { Color? color}) {
     ),
   );
 }
+cText(String upperCase, {Color? color}) {
+  return Text(
+    textAlign: TextAlign.center,
+    upperCase,
+    style: GoogleFonts.cabin(
+      fontSize: 14,
+      // fontWeight: FontWeight.bold,
+      color: color,
+
+    ),
+  );
+}
 
 urlLauncher(String url, String image) {
   return IconButton(onPressed: () async{
@@ -77,13 +89,13 @@ wDialogBox(BuildContext context, String title, String content, Function() onPres
 
 // customButton
 
-wButton(String text, Function() onPressed, {Color? color, Color? textColor, double? width, double? height}) {
-  return MaterialButton(
+wButton({required String text, required Function() onPressed, Color? color, Color? textColor, double? width, double? height}) {
+  return ElevatedButton(
     onPressed: onPressed,
-    color: color,
-    textColor: textColor,
-    minWidth: width,
-    height: height,
+    style: ElevatedButton.styleFrom(
+      foregroundColor: textColor, backgroundColor: color,
+      minimumSize: Size(width!, height!),
+    ),
     child: wText(text),
   );
 }
