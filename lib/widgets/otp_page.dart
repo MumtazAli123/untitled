@@ -2,18 +2,23 @@
 
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled/widgets/phone.dart';
 
 import '../app/modules/auth/views/mob_auth_view.dart';
+import '../app/modules/auth/views/registration_view.dart';
+import '../provider/auth_provider.dart';
 
 class OTPView extends StatefulWidget {
-  const OTPView({super.key,  String? verificationId});
+  final String verificationId;
+
+  const OTPView({super.key, required this.verificationId});
 
   @override
   State<OTPView> createState() => _OTPViewState();
 }
 
 class _OTPViewState extends State<OTPView> {
-
   final defaultPinTheme = PinTheme(
     width: 56,
     height: 56,
@@ -63,7 +68,7 @@ class _OTPViewState extends State<OTPView> {
     ),
   );
 
-
+  String otpCode = '';
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +77,7 @@ class _OTPViewState extends State<OTPView> {
         child: Center(
           child: SingleChildScrollView(
             child: Container(
-              color: Colors.white,
+              alignment: Alignment.center,
               child: Padding(
                 padding: const EdgeInsets.all(36.0),
                 child: Column(
@@ -98,14 +103,19 @@ class _OTPViewState extends State<OTPView> {
                     Pinput(
                       focusedPinTheme: submittedPinTheme,
                       submittedPinTheme: focusedPinTheme,
-
                       length: 6,
-                      // defaultPinTheme: defaultPinTheme,
-                      validator: (s) {
-                        return s == '123456' ? null : 'Invalid OTP';
+                      onSubmitted: (value) {
+                        setState(() {
+                          otpCode = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter a valid OTP';
+                        }
+                        return null;
                       },
                       pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
-
                       showCursor: true,
                       onCompleted: (pin) => print(pin),
                     ),
@@ -118,13 +128,23 @@ class _OTPViewState extends State<OTPView> {
                         padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
                         minWidth: double.infinity,
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MobAuthView(),
-                            ),
-                          );
-                        },
+                          if (otpCode != null && otpCode.length == 6) {
+                            verifyOTP(context, otpCode);
+                          }else{
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Please enter a valid OTP'),
+                              ),
+                            );
+                          }
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => RegistrationView(),
+                          //   ),
+                          // );
+
+                                                },
                         child: Text(
                           'Verify',
                           textAlign: TextAlign.center,
@@ -143,12 +163,7 @@ class _OTPViewState extends State<OTPView> {
                         Text("Didn't receive the code?"),
                         TextButton(
                           onPressed: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) => MobAuthView(),
-                            //   ),
-                            // );
+                            _resendOTP();
                           },
                           child: Text("Resend"),
                         ),
@@ -162,5 +177,14 @@ class _OTPViewState extends State<OTPView> {
         ),
       ),
     );
+  }
+
+  void verifyOTP(BuildContext context, String userCode) {
+
+  }
+
+  void _resendOTP() {
+    final app = Provider.of<AuthMobProvider>(context, listen: false);
+    // String phone = '+${selectedCountry.phoneCode}${phoneController.text.trim()}';
   }
 }

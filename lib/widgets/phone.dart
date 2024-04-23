@@ -4,9 +4,10 @@ import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
-import 'package:untitled/widgets/mix_widgets.dart';
+import 'package:provider/provider.dart';
 
-import 'otp_page.dart';
+import '../provider/auth_provider.dart';
+import 'mix_widgets.dart';
 
 class PhoneView extends StatefulWidget {
   const PhoneView({super.key});
@@ -103,56 +104,8 @@ class _PhoneViewState extends State<PhoneView> {
     }
   }
 
-  void verifyPhoneNumber() async {
-    await auth.verifyPhoneNumber(
-      phoneNumber: '+$countryCode${phoneController.text}',
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await auth.signInWithCredential(credential);
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        print(e.message);
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text('Enter OTP'),
-              content: Pinput(
-                focusedPinTheme: submittedPinTheme,
-                submittedPinTheme: focusedPinTheme,
-
-                length: 6,
-                // defaultPinTheme: defaultPinTheme,
-                validator: (val) {
-                  return val!.length == 6 ? null : 'Enter 6 digit OTP';
-                },
-                pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
-
-                showCursor: true,
-                onCompleted: (pin) => print(pin),
-              ),
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => OTPView(
-                          verificationId: verificationId,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
-    );
+  void verifyPhoneNumber()  {
+    // final app = Provider((ref) => AuthMobProvider());
   }
 
   @override
@@ -165,6 +118,7 @@ class _PhoneViewState extends State<PhoneView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('Register '),
       ),
       body: SafeArea(
@@ -179,8 +133,8 @@ class _PhoneViewState extends State<PhoneView> {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(20),
-                    width: 250,
-                    height: 20,
+                    width: 350,
+                    height: 140,
                     child: Image.asset(
                       'assets/images/login.png',
                       fit: BoxFit.contain,
@@ -263,7 +217,9 @@ class _PhoneViewState extends State<PhoneView> {
                   const SizedBox(height: 20.0),
                   wButton(
                     onPressed: () {
-                      fromValidation();
+                      if (_formKey.currentState!.validate()) {
+                        sendPhoneNumber();
+                      }
                     },
                     text: 'Send OTP',
                     color: Colors.green,
@@ -278,5 +234,11 @@ class _PhoneViewState extends State<PhoneView> {
         ),
       ),
     );
+  }
+  void sendPhoneNumber() async {
+    final ap = Provider.of<AuthMobProvider>(context, listen: false);
+   String phone = '+${selectedCountry.phoneCode}${phoneController.text.trim()}';
+    print(phone);
+    ap.verifyPhoneNumber(phone);
   }
 }
