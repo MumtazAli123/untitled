@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/app/modules/budget/views/budget_view.dart';
+import 'package:untitled/app/modules/home/views/home_view.dart';
 import 'package:untitled/models/user_model.dart';
 
 import '../app/modules/auth/views/mob_auth_view.dart';
@@ -197,30 +199,22 @@ class _OTPViewState extends State<OTPView> {
   void verifyOTP(BuildContext context, String userOtp) {
     final app = Provider.of<AuthMobProvider>(context, listen: false);
     app.verifyOTP(
-    context: context,
-    otp: userOtp,
-    verificationId: widget.verificationId,
-    onSuccess: () {
-      app.checkUserExist(app.uid).then((value) {
-        if (value == true) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MobAuthView(),
-            ),
-          );
-        } else {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => RegistrationView(),
-            ),
-          );
-        }
-      });
-    });
+      verificationId: widget.verificationId,
+      smsCode: userOtp,
+      onSuccess: () {
+      },
+      onError: (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e ?? 'An error occurred'),
+          ),
+        );
+      },
+    );
 
   }
+
+
 
   void _resendOTP ( UserModel user) {
     final app = Provider.of<AuthMobProvider>(context, listen: false);

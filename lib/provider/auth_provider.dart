@@ -55,44 +55,44 @@ class AuthMobProvider extends ChangeNotifier {
   }
 
 //   verify Otp
-  void verifyOTP(
-      {required BuildContext context,
-      required String otp,
-      required String verificationId,
-      required Function onSuccess}) async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      final PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: otp,
-      );
-      // User user = (await _auth.signInWithCredential(credential)).user!;
-      // if (user != null) {
-      //   // _isSignedIn = true;
-      //   // notifyListeners();
-      //   // final SharedPreferences prefs = await SharedPreferences.getInstance();
-      //   // prefs.setBool('isLogin', true);
-      //   _uid = user.uid;
-      //   onSuccess();
-      // }
-    } on FirebaseAuthException catch (e) {
-      Get.snackbar(e.message ?? 'An error occurred', 'Please try again');
-    }
-  }
+//   void verifyOTP(
+//       {required BuildContext context,
+//       required String otp,
+//       required String verificationId,
+//       required Function onSuccess}) async {
+//     _isLoading = true;
+//     notifyListeners();
+//     try {
+//       final PhoneAuthCredential credential = PhoneAuthProvider.credential(
+//         verificationId: verificationId,
+//         smsCode: otp,
+//       );
+//       // User user = (await _auth.signInWithCredential(credential)).user!;
+//       // if (user != null) {
+//       //   // _isSignedIn = true;
+//       //   // notifyListeners();
+//       //   // final SharedPreferences prefs = await SharedPreferences.getInstance();
+//       //   // prefs.setBool('isLogin', true);
+//       //   _uid = user.uid;
+//       //   onSuccess();
+//       // }
+//     } on FirebaseAuthException catch (e) {
+//       Get.snackbar(e.message ?? 'An error occurred', 'Please try again');
+//     }
+//   }
 
   // database operation
-  Future<bool> checkUserExist(String uid) async {
-    DocumentSnapshot snapshot =
-        await _firestore.collection('users').doc(uid).get();
-    if (snapshot.exists) {
-      print('User Exist');
-      return true;
-    } else {
-      print('New User');
-      return false;
-    }
-  }
+  // Future<bool> checkUserExist(String uid) async {
+  //   DocumentSnapshot snapshot =
+  //       await _firestore.collection('users').doc(uid).get();
+  //   if (snapshot.exists) {
+  //     print('User Exist');
+  //     return true;
+  //   } else {
+  //     print('New User');
+  //     return false;
+  //   }
+  // }
 
   void saveUserDataToFirebase({
   required BuildContext context,
@@ -126,5 +126,21 @@ class AuthMobProvider extends ChangeNotifier {
         Get.snackbar('OTP sent successfully', '');
       },
     );
+  }
+
+  void verifyOTP({required String verificationId, required String smsCode, required Null Function() onSuccess, required Null Function(dynamic e) onError}) {
+    try {
+      final PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsCode,
+      );
+      _auth.signInWithCredential(credential).then((value) {
+        onSuccess();
+      }).catchError((e) {
+        onError(e);
+      });
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar(e.message ?? 'An error occurred', 'Please try again');
+    }
   }
 }

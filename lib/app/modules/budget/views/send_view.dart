@@ -82,6 +82,11 @@ class _SendViewState extends State<SendView> {
   final TextEditingController transferNominalController =
       TextEditingController();
 
+  UserModel userModel = UserModel();
+
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+
   @override
   void initState() {
     super.initState();
@@ -339,32 +344,37 @@ class _SendViewState extends State<SendView> {
         text: 'Please enter amount',
       );
     } else {
-      _otpSendFromFirebase(recipient!);
+      _otpSendFromFirebase();
       // _otpSendMoney(recipient!);
       // sendMoneyToUser(recipient!);
     }
   }
 
-  _otpSendFromFirebase(UserModel phone) async {
+  _otpSendFromFirebase() async {
     await FirebaseAuth.instance.verifyPhoneNumber(
-
-      phoneNumber: phone.username!,
-      verificationCompleted: (PhoneAuthCredential credential) {},
-      verificationFailed: (FirebaseAuthException e) {},
-      codeSent: (String verificationId, int? resendToken) {
-        // Get.back();
-        // _otpSendMoney( otherUsers[0]);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => OTPView(
-              verificationId: verificationId,
-              recipient: phone,
-            ),
-          ),
+      // data get  from firebase phone number
+      phoneNumber: '+921234567890',
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        await FirebaseAuth.instance.signInWithCredential(credential);
+        _otpSendMoney(userModel);
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        QuickAlert.show(
+          backgroundColor: Colors.white,
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Error',
+          text: e.message ?? 'An error occurred',
         );
       },
+      codeSent: (String verificationId, int? resendToken) {
+        Get.back();
+        _otpSendMoney(userModel);
+      },
       codeAutoRetrievalTimeout: (String verificationId) {},
+
+
+
     );
   }
 
@@ -401,9 +411,18 @@ class _SendViewState extends State<SendView> {
         ],
       ),
       onConfirmBtnTap: () {
-        Get.back();
-        sendMoneyToUser(recipient);
-      },
+        if(otpCode.isNotEmpty){
+          sendMoneyToUser(recipient);
+        }else{
+          QuickAlert.show(
+            backgroundColor: Colors.white,
+            context: context,
+            type: QuickAlertType.error,
+            title: 'Error',
+            text: 'Please enter a valid OTP',
+          );
+        }
+     },
     );
   }
 
