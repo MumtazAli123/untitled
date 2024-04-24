@@ -47,35 +47,31 @@ class _TopUpScreenState extends State<TopUpScreen> {
               Fluttertoast.showToast(msg: "Minimum top up is 20000");
               return;
             }
-            if (topUpValue != null) {
-              UserModel currentUser = await fetchUserData(user!.uid);
-              double currentBalance = currentUser.balance ?? 0;
+            UserModel currentUser = await fetchUserData(user!.uid);
+            double currentBalance = currentUser.balance ?? 0;
 
-              double newBalance = currentBalance + topUpValue;
+            double newBalance = currentBalance + topUpValue;
 
-              await FirebaseFirestore.instance
-                  .collection("users")
-                  .doc(user!.uid)
-                  .update({"balance": newBalance}).then((_) {
-                setState(() {
-                  loggedInUser.balance = newBalance;
-                });
+            await FirebaseFirestore.instance
+                .collection("users")
+                .doc(user!.uid)
+                .update({"balance": newBalance}).then((_) {
+              setState(() {
+                loggedInUser.balance = newBalance;
               });
+            });
 
-              Fluttertoast.showToast(msg: "Top up ${topUpValue} successful !");
+            Fluttertoast.showToast(msg: "Top up $topUpValue successful !");
 
-              // Navigator.pushAndRemoveUntil(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => HomeScreen()),
-              //       (route) => false,
-              // );
+            // Navigator.pushAndRemoveUntil(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => HomeScreen()),
+            //       (route) => false,
+            // );
 
-              Get.toNamed('/home');
+            Get.toNamed('/home');
 
-            } else {
-              Fluttertoast.showToast(msg: "Please insert the right value");
-            }
-          } else {
+                    } else {
             Fluttertoast.showToast(msg: "Please insert some value");
           }
         },

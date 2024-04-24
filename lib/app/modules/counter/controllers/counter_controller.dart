@@ -1,7 +1,5 @@
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
-import 'package:location/location.dart' as loc;
-import 'package:location/location.dart';
 
 class CounterController extends GetxController {
   //TODO: Implement CounterController

@@ -116,22 +116,14 @@ class AuthController extends GetxController {
     isLoading(!isLoading.value);
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-  }
 
-@override
-  void onReady() {
-    super.onReady();
-  }
 
   @override
   void onClose() {}
 
   Future getBalance() async {
     isBalance(true);
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
     isBalance(false);
   }
 

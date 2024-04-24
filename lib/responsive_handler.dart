@@ -1,20 +1,20 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_constructors_in_immutables
 
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:untitled/app/modules/auth/views/auth_view.dart';
 import 'package:untitled/app/modules/home/views/home_view.dart';
 import 'package:untitled/view_model.dart';
+import 'package:provider/provider.dart';
 
 import 'app/modules/auth/views/mob_auth_view.dart';
 import 'app/modules/home/views/web_view.dart';
 
-class ResponsiveHandler extends HookConsumerWidget {
+class ResponsiveHandler extends  StatelessWidget{
   const ResponsiveHandler({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final viewModelProvider = ref.watch(viewModel);
+  Widget build(BuildContext context){
+    final viewModelProvider = Provider.of<ViewModel>(context);
     viewModelProvider.isLoggedIn();
 
     if (viewModelProvider.isSignIn == true) {

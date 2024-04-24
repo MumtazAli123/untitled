@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:untitled/app/modules/auth/views/registration_view.dart';
 import 'package:untitled/app/modules/home/views/home_view.dart';
 import 'package:untitled/models/user_model.dart';
 import 'package:untitled/widgets/phone.dart';
@@ -201,16 +200,26 @@ class _MobAuthViewState extends State<MobAuthView> {
 
   void signIn(String email, String password) async {
     if (_formKey.currentState!.validate()) {
-      await _auth
-          .signInWithEmailAndPassword(email: email, password: password)
-          .then((uid) => {
-        Fluttertoast.showToast(msg: "Login Successful"),
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: ((context) => HomeView()))),
-      })
-          .catchError((e) {
-        Fluttertoast.showToast(msg: e!.message);
-      });
+      _formKey.currentState!.save();
+      try {
+        final user = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        if (user.user != null) {
+          Get.to(() => HomeView());
+        }
+      } on FirebaseAuthException catch (e) {
+        Fluttertoast.showToast(
+          msg: e.message ?? 'An error occurred',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+      }
     }
   }
 }

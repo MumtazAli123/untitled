@@ -4,11 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:provider/provider.dart';
+import 'package:get/get.dart';
 
 import '../../../../models/user_model.dart';
-import '../../../../provider/auth_provider.dart';
-import '../../../../widgets/otp_page.dart';
 import 'mob_auth_view.dart';
 
 class RegistrationView extends StatefulWidget {
@@ -217,7 +215,6 @@ class _RegistrationViewState extends State<RegistrationView> {
         minWidth: double.infinity,
         onPressed: () {
           signUp(email.text, password.text);
-
         },
         child: Text(
           'Register',
@@ -234,63 +231,63 @@ class _RegistrationViewState extends State<RegistrationView> {
     return Scaffold(
         // backgroundColor: Colors.white,
         body: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              child: Container(
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.all(36.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
+      child: Center(
+        child: SingleChildScrollView(
+          child: Container(
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.all(36.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      height: 150,
+                      child: Image.asset(
+                        "assets/images/wallet.png",
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    fullNameField,
+                    SizedBox(height: 15),
+                    usernameField,
+                    SizedBox(height: 15),
+                    emailField,
+                    SizedBox(height: 15),
+                    passwordField,
+                    SizedBox(height: 15),
+                    confirmPasswordField,
+                    SizedBox(height: 30),
+                    registerButton,
+                    SizedBox(height: 15),
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        SizedBox(
-                          height: 150,
-                          child: Image.asset(
-                            "assets/images/wallet.png",
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        SizedBox(height: 30),
-                        fullNameField,
-                        SizedBox(height: 15),
-                        usernameField,
-                        SizedBox(height: 15),
-                        emailField,
-                        SizedBox(height: 15),
-                        passwordField,
-                        SizedBox(height: 15),
-                        confirmPasswordField,
-                        SizedBox(height: 30),
-                        registerButton,
-                        SizedBox(height: 15),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("Already have an account?"),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => MobAuthView(),
-                                  ),
-                                );
-                              },
-                              child: Text("Login"),
-                            ),
-                          ],
+                      children: [
+                        Text("Already have an account?"),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MobAuthView(),
+                              ),
+                            );
+                          },
+                          child: Text("Login"),
                         ),
                       ],
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
           ),
-        ));
+        ),
+      ),
+    ));
   }
 
   void signUp(String email, String password) async {
@@ -312,8 +309,6 @@ class _RegistrationViewState extends State<RegistrationView> {
   }
 
   Future<bool> isUsernameAvailable(String username) async {
-    final app = Provider.of<AuthMobProvider>(context, listen: false);
-    
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     final query = await firebaseFirestore
         .collection("users")
@@ -343,21 +338,7 @@ class _RegistrationViewState extends State<RegistrationView> {
         .doc(user.uid)
         .set(userModel.toMap());
 
-    Fluttertoast.showToast(msg: "Account created successfully");
-
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MobAuthView(),
-      ),
-      (route) => false,
-    );
-
+    Get.snackbar("Success", "Account created successfully");
+    Get.to(() => MobAuthView());
   }
-
 }
-
-
-
-
-

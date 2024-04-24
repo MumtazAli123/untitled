@@ -30,7 +30,7 @@ class AuthMobProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void verifyPhoneNumber(String phoneNumber) async {
+  void verifyPhoneNumber({String? phoneNumber,  Function? onSuccess, }) async {
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
@@ -117,5 +117,14 @@ class AuthMobProvider extends ChangeNotifier {
     notifyListeners();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isLogin', false);
+  }
+
+  void resendOTP({required BuildContext context, required UserModel userModel}) {
+    verifyPhoneNumber(
+      phoneNumber: userModel.number,
+      onSuccess: () {
+        Get.snackbar('OTP sent successfully', '');
+      },
+    );
   }
 }

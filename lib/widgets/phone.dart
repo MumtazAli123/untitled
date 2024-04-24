@@ -239,6 +239,6 @@ class _PhoneViewState extends State<PhoneView> {
     final ap = Provider.of<AuthMobProvider>(context, listen: false);
    String phone = '+${selectedCountry.phoneCode}${phoneController.text.trim()}';
     print(phone);
-    ap.verifyPhoneNumber(phone);
+    ap.verifyPhoneNumber(phoneNumber: phone);
   }
 }

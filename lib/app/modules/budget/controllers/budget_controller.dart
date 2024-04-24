@@ -28,15 +28,15 @@ class BudgetController extends GetxController {
     totalBudget.value = 0;
     totalExpense.value = 0;
     addBudget.collection('budget').get().then((value) {
-      value.docs.forEach((element) {
+      for (var element in value.docs) {
         totalBudget.value += element['amount'];
-      });
+      }
     });
 
     addBudget.collection('expense').get().then((value) {
-      value.docs.forEach((element) {
+      for (var element in value.docs) {
         totalExpense.value += element['amount'];
-      });
+      }
     });
   }
 

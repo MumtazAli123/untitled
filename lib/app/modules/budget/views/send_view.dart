@@ -4,10 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pinput/pinput.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../models/user_model.dart';
+import '../../../../provider/auth_provider.dart';
+import '../../../../widgets/otp_page.dart';
 
 class SendView extends StatefulWidget {
   const SendView({super.key});
@@ -21,8 +25,62 @@ class _SendViewState extends State<SendView> {
   User? user = FirebaseAuth.instance.currentUser;
   UserModel loggedInUser = UserModel();
   List<UserModel> otherUsers = [];
+
+  final defaultPinTheme = PinTheme(
+    width: 56,
+    height: 56,
+    textStyle: TextStyle(
+      color: Colors.green,
+      fontSize: 24,
+    ),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(
+        color: Colors.black,
+        width: 2,
+      ),
+    ),
+  );
+  final submittedPinTheme = PinTheme(
+    width: 56,
+    height: 56,
+    textStyle: TextStyle(
+      color: Colors.red,
+      fontSize: 24,
+    ),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(
+        color: Colors.red,
+        width: 2,
+      ),
+    ),
+  );
+  final focusedPinTheme = PinTheme(
+    width: 56,
+    height: 56,
+    textStyle: TextStyle(
+      color: Colors.green,
+      fontSize: 24,
+    ),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(
+        color: Colors.green,
+        width: 2,
+      ),
+    ),
+  );
+
+  String otpCode = '';
+
+  final fb = FirebaseFirestore.instance;
+
   final TextEditingController transferNominalController =
-  TextEditingController();
+      TextEditingController();
 
   @override
   void initState() {
@@ -35,13 +93,13 @@ class _SendViewState extends State<SendView> {
 
   Future<void> fetchLoggedInUserBalance(String uid) async {
     DocumentReference userDoc =
-    FirebaseFirestore.instance.collection('users').doc(uid);
+        FirebaseFirestore.instance.collection('users').doc(uid);
 
     DocumentSnapshot docSnapshot = await userDoc.get();
 
     if (docSnapshot.exists) {
       Map<String, dynamic>? userData =
-      docSnapshot.data() as Map<String, dynamic>?;
+          docSnapshot.data() as Map<String, dynamic>?;
 
       if (userData != null) {
         double userBalance = userData['balance'] ?? 0;
@@ -55,7 +113,7 @@ class _SendViewState extends State<SendView> {
 
   Future<void> fetchUserData() async {
     CollectionReference usersCollection =
-    FirebaseFirestore.instance.collection('users');
+        FirebaseFirestore.instance.collection('users');
 
     QuerySnapshot querySnapshot = await usersCollection.get();
 
@@ -63,7 +121,7 @@ class _SendViewState extends State<SendView> {
 
     for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
       Map<String, dynamic> userData =
-      documentSnapshot.data() as Map<String, dynamic>;
+          documentSnapshot.data() as Map<String, dynamic>;
 
       String uid = documentSnapshot.id;
 
@@ -170,8 +228,6 @@ class _SendViewState extends State<SendView> {
     );
   }
 
-
-
   void sendMoneyToUser(UserModel recipient) {
     if (user != null) {
       String enteredValue = transferNominalController.text;
@@ -214,6 +270,7 @@ class _SendViewState extends State<SendView> {
 
   void _buildDialogSendMoney(UserModel recipient) {
     QuickAlert.show(
+      backgroundColor: Colors.white,
       context: context,
       // alert
       type: QuickAlertType.warning,
@@ -224,34 +281,154 @@ class _SendViewState extends State<SendView> {
       title: 'Send Money',
       text: " Enter the amount you want to send to ${recipient.fullName}",
       textAlignment: TextAlign.center,
-      widget: TextFormField(
-        controller: transferNominalController,
-        keyboardType: TextInputType.number,
-        decoration: InputDecoration(
-          labelText: 'Enter amount',
-          hintText: 'Enter amount',
-        ),
+      widget: Column(
+        children: [
+          Text(
+            textAlign: TextAlign.start,
+            'Your balance: ${(loggedInUser.balance!)}',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 20.0),
+          TextFormField(
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter amount';
+              }
+              return null;
+            },
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              textBaseline: TextBaseline.alphabetic,
+            ),
+            controller: transferNominalController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              hintStyle: TextStyle(color: Colors.black),
+              labelText: 'Amount',
+              labelStyle: TextStyle(color: Colors.black),
+              hintText: 'Enter amount',
+              border: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.black),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+          SizedBox(height: 10.0),
+          //  enter type money show in currency format
+        ],
       ),
       onConfirmBtnTap: () async {
-        Get.back();
-        sendMoneyToUser(recipient);
-
+        _validateField(recipient);
       },
     );
   }
-  void _buildDialogWithDataReceiver(String? username, int transferAmount,
-      String fullName) {
+
+  _validateField(UserModel? recipient) {
+    if (transferNominalController.text.isEmpty) {
+      QuickAlert.show(
+        backgroundColor: Colors.white,
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Error',
+        text: 'Please enter amount',
+      );
+    } else {
+      _otpSendFromFirebase(recipient!);
+      // _otpSendMoney(recipient!);
+      // sendMoneyToUser(recipient!);
+    }
+  }
+
+  _otpSendFromFirebase(UserModel phone) async {
+    await FirebaseAuth.instance.verifyPhoneNumber(
+
+      phoneNumber: phone.username!,
+      verificationCompleted: (PhoneAuthCredential credential) {},
+      verificationFailed: (FirebaseAuthException e) {},
+      codeSent: (String verificationId, int? resendToken) {
+        // Get.back();
+        // _otpSendMoney( otherUsers[0]);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OTPView(
+              verificationId: verificationId,
+              recipient: phone,
+            ),
+          ),
+        );
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {},
+    );
+  }
+
+  void _otpSendMoney(UserModel recipient) {
     QuickAlert.show(
+      backgroundColor: Colors.white,
+      context: context,
+      type: QuickAlertType.warning,
+      barrierDismissible: false,
+      confirmBtnText: 'Send Money',
+      title: 'Send Money',
+      text: 'Enter OTP to send money',
+      textAlignment: TextAlign.center,
+      widget: Column(
+        children: [
+          SizedBox(height: 20.0),
+          Pinput(
+            focusedPinTheme: focusedPinTheme,
+            submittedPinTheme: submittedPinTheme,
+            length: 6,
+            onSubmitted: (value) {
+              setState(() {
+                otpCode = value;
+              });
+            },
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'Please enter a valid OTP';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 10.0),
+        ],
+      ),
+      onConfirmBtnTap: () {
+        Get.back();
+        sendMoneyToUser(recipient);
+      },
+    );
+  }
+
+  void _buildDialogWithDataReceiver(
+      String? username, int transferAmount, String fullName) {
+    QuickAlert.show(
+      backgroundColor: Colors.white,
       barrierDismissible: false,
       context: context,
       type: QuickAlertType.success,
       title: 'Success',
       text:
-      'Money sent to $fullName\nAmount: $transferAmount\nReceiver: $username',
+          'Money sent to $fullName\nAmount: $transferAmount\nReceiver: $username',
       textAlignment: TextAlign.start,
       onConfirmBtnTap: () {
         Get.toNamed('/budget');
       },
+    );
+  }
+
+  void _resendOTP(UserModel userModel) {
+    final app = Provider.of<AuthMobProvider>(context, listen: false);
+    app.resendOTP(
+      context: context,
+      userModel: userModel,
     );
   }
 }

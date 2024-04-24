@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
-import 'package:untitled/widgets/phone.dart';
+import 'package:untitled/models/user_model.dart';
 
 import '../app/modules/auth/views/mob_auth_view.dart';
 import '../app/modules/auth/views/registration_view.dart';
@@ -12,7 +12,7 @@ import '../provider/auth_provider.dart';
 class OTPView extends StatefulWidget {
   final String verificationId;
 
-  const OTPView({super.key, required this.verificationId});
+  const OTPView({super.key, required this.verificationId,  UserModel? recipient});
 
   @override
   State<OTPView> createState() => _OTPViewState();
@@ -69,6 +69,7 @@ class _OTPViewState extends State<OTPView> {
   );
 
   String otpCode = '';
+  String phone = '';
 
 
   @override
@@ -138,7 +139,7 @@ class _OTPViewState extends State<OTPView> {
                         padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
                         minWidth: double.infinity,
                         onPressed: () {
-                          if (otpCode != null && otpCode.length == 6) {
+                          if (otpCode.length == 6) {
                             verifyOTP(context, otpCode);
                           }else{
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -173,7 +174,11 @@ class _OTPViewState extends State<OTPView> {
                         Text("Didn't receive the code?"),
                         TextButton(
                           onPressed: () {
-                            _resendOTP();
+                            _resendOTP(
+                              UserModel(
+                                number: phone,
+                              ),
+                            );
                           },
                           child: Text("Resend"),
                         ),
@@ -217,7 +222,18 @@ class _OTPViewState extends State<OTPView> {
 
   }
 
-  void _resendOTP (){
+  void _resendOTP ( UserModel user) {
+    final app = Provider.of<AuthMobProvider>(context, listen: false);
+    app.verifyPhoneNumber(
+      phoneNumber: user.number,
+      onSuccess: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('OTP sent successfully'),
+          ),
+        );
+      },
+    );
 
   }
 }
