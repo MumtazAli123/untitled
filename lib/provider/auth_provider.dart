@@ -67,15 +67,15 @@ class AuthMobProvider extends ChangeNotifier {
         verificationId: verificationId,
         smsCode: otp,
       );
-      User user = (await _auth.signInWithCredential(credential)).user!;
-      if (user != null) {
-        // _isSignedIn = true;
-        // notifyListeners();
-        // final SharedPreferences prefs = await SharedPreferences.getInstance();
-        // prefs.setBool('isLogin', true);
-        _uid = user.uid;
-        onSuccess();
-      }
+      // User user = (await _auth.signInWithCredential(credential)).user!;
+      // if (user != null) {
+      //   // _isSignedIn = true;
+      //   // notifyListeners();
+      //   // final SharedPreferences prefs = await SharedPreferences.getInstance();
+      //   // prefs.setBool('isLogin', true);
+      //   _uid = user.uid;
+      //   onSuccess();
+      // }
     } on FirebaseAuthException catch (e) {
       Get.snackbar(e.message ?? 'An error occurred', 'Please try again');
     }

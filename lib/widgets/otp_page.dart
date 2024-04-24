@@ -217,8 +217,7 @@ class _OTPViewState extends State<OTPView> {
 
   }
 
-  void _resendOTP() {
-    final app = Provider.of<AuthMobProvider>(context, listen: false);
-    // String phone = '+${selectedCountry.phoneCode}${phoneController.text.trim()}';
+  void _resendOTP (){
+
   }
 }
