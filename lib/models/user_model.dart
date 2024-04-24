@@ -1,14 +1,14 @@
 import 'dart:async';
 
 class UserModel {
-  String? uid;
-  String? fullName;
-  String? username;
-  String? email;
-  String? number;
-  double? balance;
-  DateTime? createdAt;
-  DateTime? updatedAt;
+   String? fullName;
+   String? username;
+   String? email;
+   String? number;
+   double? balance;
+   String? createdAt;
+   String? updatedAt;
+   String? uid;
 
   UserModel({
     this.uid,

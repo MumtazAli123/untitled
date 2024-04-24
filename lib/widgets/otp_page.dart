@@ -70,11 +70,17 @@ class _OTPViewState extends State<OTPView> {
 
   String otpCode = '';
 
+
   @override
   Widget build(BuildContext context) {
+    final isLoading = Provider.of<AuthMobProvider>(context, listen: true).isLoading;
     return Scaffold(
       body: SafeArea(
-        child: Center(
+        child: isLoading == true
+            ? Center(
+          child: Text("$isLoading User is Exist"),
+        )
+            :Center(
           child: SingleChildScrollView(
             child: Container(
               alignment: Alignment.center,
@@ -104,11 +110,11 @@ class _OTPViewState extends State<OTPView> {
                       focusedPinTheme: submittedPinTheme,
                       submittedPinTheme: focusedPinTheme,
                       length: 6,
-                      onSubmitted: (value) {
-                        setState(() {
-                          otpCode = value;
-                        });
-                      },
+                      // onSubmitted: (value) {
+                      //   setState(() {
+                      //     otpCode = value;
+                      //   });
+                      // },
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Please enter a valid OTP';
@@ -117,7 +123,11 @@ class _OTPViewState extends State<OTPView> {
                       },
                       pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
                       showCursor: true,
-                      onCompleted: (pin) => print(pin),
+                      onCompleted: (val) {
+                        setState(() {
+                          otpCode = val;
+                        });
+                      },
                     ),
                     SizedBox(height: 30),
                     Material(
@@ -144,7 +154,7 @@ class _OTPViewState extends State<OTPView> {
                           //   ),
                           // );
 
-                                                },
+                        },
                         child: Text(
                           'Verify',
                           textAlign: TextAlign.center,
@@ -179,7 +189,31 @@ class _OTPViewState extends State<OTPView> {
     );
   }
 
-  void verifyOTP(BuildContext context, String userCode) {
+  void verifyOTP(BuildContext context, String userOtp) {
+    final app = Provider.of<AuthMobProvider>(context, listen: false);
+    app.verifyOTP(
+    context: context,
+    otp: userOtp,
+    verificationId: widget.verificationId,
+    onSuccess: () {
+      app.checkUserExist(app.uid).then((value) {
+        if (value == true) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MobAuthView(),
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RegistrationView(),
+            ),
+          );
+        }
+      });
+    });
 
   }
 

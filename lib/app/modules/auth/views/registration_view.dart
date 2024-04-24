@@ -4,8 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../models/user_model.dart';
+import '../../../../provider/auth_provider.dart';
 import '../../../../widgets/otp_page.dart';
 import 'mob_auth_view.dart';
 
@@ -24,11 +26,11 @@ class _RegistrationViewState extends State<RegistrationView> {
   final email = TextEditingController();
   final password = TextEditingController();
   final confirm = TextEditingController();
-  final number = TextEditingController();
+  final number = "";
   final balance = 0;
   bool _obscureText = true;
 
-  final date = DateTime.now();
+  final String date = DateTime.now().toString();
 
   final _auth = FirebaseAuth.instance;
 
@@ -117,33 +119,6 @@ class _RegistrationViewState extends State<RegistrationView> {
         ),
       ),
     );
-    final numberField = TextFormField(
-      autofocus: false,
-      controller: number,
-      keyboardType: TextInputType.number,
-      validator: (value) {
-        if (value!.isEmpty) {
-          return ("Please Enter Your Phone Number");
-        }
-        if (value.length < 10) {
-          return ("Please Enter a valid Phone Number");
-        }
-        return null;
-      },
-      onSaved: (value) {
-        number.text = value!;
-      },
-      textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        prefixIcon: Icon(Icons.phone),
-        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
-        hintText: 'Phone Number',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-    );
-
     final passwordField = Stack(
       children: [
         Container(
@@ -285,8 +260,6 @@ class _RegistrationViewState extends State<RegistrationView> {
                         SizedBox(height: 15),
                         emailField,
                         SizedBox(height: 15),
-                        numberField,
-                        SizedBox(height: 15),
                         passwordField,
                         SizedBox(height: 15),
                         confirmPasswordField,
@@ -339,6 +312,8 @@ class _RegistrationViewState extends State<RegistrationView> {
   }
 
   Future<bool> isUsernameAvailable(String username) async {
+    final app = Provider.of<AuthMobProvider>(context, listen: false);
+    
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     final query = await firebaseFirestore
         .collection("users")
@@ -355,13 +330,13 @@ class _RegistrationViewState extends State<RegistrationView> {
     UserModel userModel = UserModel(); // sending the values
 
     userModel.email = user!.email;
-    userModel.uid = user.uid;
+    userModel.uid = _auth.currentUser!.phoneNumber;
     userModel.fullName = fullName.text;
     userModel.username = username.text;
-    userModel.number = number.text;
+    userModel.number = _auth.currentUser!.phoneNumber;
     userModel.balance = 0;
-    // userModel.createdAt = date;
-    // userModel.updatedAt = date;
+    userModel.createdAt = date;
+    userModel.updatedAt = date;
 
     await firebaseFirestore
         .collection("users")
