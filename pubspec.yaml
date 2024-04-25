@@ -31,7 +31,7 @@ dependencies:
   quickalert: 1.1.0
   pinput: ^4.0.0
   country_picker: 2.0.25
-  firebase_storage: 11.7.3
+  firebase_storage:
   shared_preferences: 2.2.3
   flutter: 
     sdk: flutter

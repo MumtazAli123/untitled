@@ -92,17 +92,6 @@ class _PhoneViewState extends State<PhoneView> {
     e164Key: "",
   );
 
-  fromValidation() {
-    if (phoneController.text.isEmpty) {
-      return 'Enter phone number';
-    } else if (phoneController.text.length < 10) {
-      return 'Enter valid phone number';
-    } else if (countryCode.isEmpty) {
-      return 'Select country code';
-    } else {
-      return verifyPhoneNumber();
-    }
-  }
 
   void verifyPhoneNumber()  {
     // final app = Provider((ref) => AuthMobProvider());
