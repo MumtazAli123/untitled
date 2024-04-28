@@ -6,6 +6,10 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Photo Library is required to select photos</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Photo Library is required to save photos</string>
 	<key>CFBundleDisplayName</key>
 	<string>Untitled</string>
 	<key>CFBundleExecutable</key>

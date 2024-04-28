@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -98,6 +99,19 @@ wButton({required String text, required Function() onPressed, Color? color, Colo
     ),
     child: wText(text),
   );
+}
+
+Future<XFile?> pickImage() async {
+  XFile? image;
+  try {
+   final pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
+   if(pickedImage != null) {
+     image = XFile(pickedImage.path);
+   }
+  } catch (e) {
+    print(e);
+  }
+  return image;
 }
 
 

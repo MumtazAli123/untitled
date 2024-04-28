@@ -113,11 +113,7 @@ class _OTPViewState extends State<OTPView> {
                       focusedPinTheme: submittedPinTheme,
                       submittedPinTheme: focusedPinTheme,
                       length: 6,
-                      // onSubmitted: (value) {
-                      //   setState(() {
-                      //     otpCode = value;
-                      //   });
-                      // },
+
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Please enter a valid OTP';
@@ -150,12 +146,12 @@ class _OTPViewState extends State<OTPView> {
                               ),
                             );
                           }
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => RegistrationView(),
-                          //   ),
-                          // );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RegistrationView(),
+                            ),
+                          );
 
                         },
                         child: Text(
