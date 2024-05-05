@@ -11,19 +11,23 @@ import 'package:provider/provider.dart';
 
 import '../../../../models/user_model.dart';
 import '../../../../provider/auth_provider.dart';
-import '../../../../widgets/otp_page.dart';
+import '../controllers/budget_controller.dart';
 
 class SendView extends StatefulWidget {
-  const SendView({super.key});
+  UserModel? recipient;
+   SendView({super.key, this.recipient});
 
   @override
   State<SendView> createState() => _SendViewState();
 }
 
 class _SendViewState extends State<SendView> {
+  final controller = Get.put(BudgetController());
+
   final _formKey = GlobalKey<FormState>();
   User? user = FirebaseAuth.instance.currentUser;
   UserModel loggedInUser = UserModel();
+
   List<UserModel> otherUsers = [];
 
   final defaultPinTheme = PinTheme(
@@ -81,11 +85,11 @@ class _SendViewState extends State<SendView> {
 
   final TextEditingController transferNominalController =
       TextEditingController();
+  final descriptionController = TextEditingController();
 
   UserModel userModel = UserModel();
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-
 
   @override
   void initState() {
@@ -233,7 +237,8 @@ class _SendViewState extends State<SendView> {
     );
   }
 
-  void sendMoneyToUser(UserModel recipient) {
+  void sendMoneyToUser(UserModel recipient) async {
+    //   send and save statement in_out of users
     if (user != null) {
       String enteredValue = transferNominalController.text;
 
@@ -245,30 +250,67 @@ class _SendViewState extends State<SendView> {
 
         double recipientUpdatedBalance = (recipient.balance!) + transferAmount;
 
-        FirebaseFirestore.instance
+        await FirebaseFirestore.instance
             .collection('users')
             .doc(user!.uid)
             .update({'balance': updatedBalance});
 
-        FirebaseFirestore.instance
+        await FirebaseFirestore.instance
             .collection('users')
             .doc(recipient.uid)
             .update({'balance': recipientUpdatedBalance});
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user!.uid)
+            .collection('statement')
+            .add({
+          "user_id": recipient.uid,
+          'name': recipient.fullName,
+          'phone': recipient.number ?? 'No phone',
+          'email': recipient.email ?? 'No email',
+          'type': "send",
+          'amount': transferNominalController.text.trim(),
+          'description': descriptionController.text.trim() == ''
+              ? 'No description'
+              : recipient.fullName,
+          'created_at': DateTime.now(),
+
+        });
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(recipient.uid)
+            .collection('statement')
+            .add({
+          "user_id": user!.uid,
+          'name': loggedInUser.fullName,
+          'phone': loggedInUser.number ?? 'No phone',
+          'email': loggedInUser.email ?? 'No email',
+          'type': "receive",
+          'amount': transferNominalController.text.trim(),
+          'description': descriptionController.text.trim() == ''
+              ? 'No description'
+              : loggedInUser.fullName,
+          'created_at': DateTime.now(),
+        });
 
         setState(() {
           loggedInUser.balance = updatedBalance;
         });
 
+        Get.snackbar('Success', 'Money sent successfully',
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM);
+
         _buildDialogWithDataReceiver(
             recipient.username, transferAmount, recipient.fullName!);
       } else {
-        QuickAlert.show(
-          barrierDismissible: false,
-          context: context,
-          type: QuickAlertType.error,
-          title: 'Error',
-          text: 'Insufficient balance to send money',
-        );
+        Get.snackbar('Error', 'Insufficient balance to send money',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM);
       }
     }
   }
@@ -277,58 +319,39 @@ class _SendViewState extends State<SendView> {
     QuickAlert.show(
       backgroundColor: Colors.white,
       context: context,
-      // alert
-      type: QuickAlertType.warning,
-      barrierDismissible: true,
-      confirmBtnText: 'Send Money',
-
-      // customAsset: 'assets/images/wallet.png',
+      type: QuickAlertType.info,
       title: 'Send Money',
-      text: " Enter the amount you want to send to ${recipient.fullName}",
+      text: 'Enter amount to send',
       textAlignment: TextAlign.center,
       widget: Column(
         children: [
-          Text(
-            textAlign: TextAlign.start,
-            'Your balance: ${(loggedInUser.balance!)}',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
           SizedBox(height: 20.0),
           TextFormField(
+            controller: transferNominalController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: 'Amount',
+              hintText: 'Enter amount',
+            ),
             validator: (value) {
-              if (value == null || value.isEmpty) {
+              if (value!.isEmpty) {
                 return 'Please enter amount';
               }
               return null;
             },
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              textBaseline: TextBaseline.alphabetic,
-            ),
-            controller: transferNominalController,
-            keyboardType: TextInputType.number,
+          ),
+          SizedBox(height: 10.0),
+          TextField(
+            controller: descriptionController,
             decoration: InputDecoration(
-              hintStyle: TextStyle(color: Colors.black),
-              labelText: 'Amount',
-              labelStyle: TextStyle(color: Colors.black),
-              hintText: 'Enter amount',
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
-                borderRadius: BorderRadius.circular(10),
-              ),
+              labelText: 'Description',
+              hintText: 'Enter description',
             ),
           ),
           SizedBox(height: 10.0),
-          //  enter type money show in currency format
         ],
       ),
-      onConfirmBtnTap: () async {
+      onConfirmBtnTap: () {
         _validateField(recipient);
       },
     );
@@ -343,20 +366,31 @@ class _SendViewState extends State<SendView> {
         title: 'Error',
         text: 'Please enter amount',
       );
-    } else {
-      _otpSendFromFirebase();
+    }else if (recipient == null) {
+      QuickAlert.show(
+        backgroundColor: Colors.white,
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Error',
+        text: 'Please select a recipient',
+      );
+    }
+    else {
+      // _otpSendFromFirebase();
       // _otpSendMoney(recipient!);
-      // sendMoneyToUser(recipient!);
+      sendMoneyToUser(recipient!);
     }
   }
 
   _otpSendFromFirebase() async {
     await FirebaseAuth.instance.verifyPhoneNumber(
       // data get  from firebase phone number
-      phoneNumber: '+921234567890',
+      phoneNumber: '+923090552973',
+
       verificationCompleted: (PhoneAuthCredential credential) async {
         await FirebaseAuth.instance.signInWithCredential(credential);
-        _otpSendMoney(userModel);
+        // _otpSendMoney(userModel);
+        sendMoneyToUser(userModel);
       },
       verificationFailed: (FirebaseAuthException e) {
         QuickAlert.show(
@@ -372,9 +406,6 @@ class _SendViewState extends State<SendView> {
         _otpSendMoney(userModel);
       },
       codeAutoRetrievalTimeout: (String verificationId) {},
-
-
-
     );
   }
 
@@ -383,10 +414,10 @@ class _SendViewState extends State<SendView> {
       backgroundColor: Colors.white,
       context: context,
       type: QuickAlertType.warning,
-      barrierDismissible: false,
+      barrierDismissible: true,
       confirmBtnText: 'Send Money',
       title: 'Send Money',
-      text: 'Enter OTP to send money',
+      text: 'Enter OTP ',
       textAlignment: TextAlign.center,
       widget: Column(
         children: [
@@ -411,9 +442,9 @@ class _SendViewState extends State<SendView> {
         ],
       ),
       onConfirmBtnTap: () {
-        if(otpCode.isNotEmpty){
+        if (otpCode.isNotEmpty) {
           sendMoneyToUser(recipient);
-        }else{
+        } else {
           QuickAlert.show(
             backgroundColor: Colors.white,
             context: context,
@@ -422,7 +453,7 @@ class _SendViewState extends State<SendView> {
             text: 'Please enter a valid OTP',
           );
         }
-     },
+      },
     );
   }
 

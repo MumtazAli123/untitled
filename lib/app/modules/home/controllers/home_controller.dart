@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
@@ -6,6 +7,7 @@ class HomeController extends GetxController {
   //TODO: Implement HomeController
 
   final totalBalance = 0.obs;
+  User? user = FirebaseAuth.instance.currentUser;
 
   var incomeList = [].obs;
   var expenseList = [].obs;
@@ -33,8 +35,11 @@ class HomeController extends GetxController {
   }
 
   void article() async {
-    var snapshot = await FirebaseFirestore.instance.collection('article').get();
-    incomeList.value = snapshot.docs.reversed.toList();
+
+    var snapshot = await FirebaseFirestore.instance.collection('users').
+    doc(user!.uid).collection('statement').get();
+    articles.value = snapshot.docs.reversed.toList();
+
   }
 
   void streamArticle() async {

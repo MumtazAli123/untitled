@@ -32,7 +32,7 @@ dependencies:
   country_picker: 2.0.25
   firebase_storage: any
   shared_preferences: 2.2.3
-  image_picker: 1.1.0
+  image_picker: ^1.1.1
   flutter: 
     sdk: flutter
 

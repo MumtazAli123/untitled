@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:get_time_ago/get_time_ago.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:untitled/app/modules/budget/views/send_view.dart';
 import 'package:untitled/app/modules/budget/views/topup_view.dart';
 import 'package:untitled/app/modules/home/controllers/home_controller.dart';
@@ -12,7 +14,8 @@ import '../../../../models/user_model.dart';
 import '../../../../widgets/currency_format.dart';
 
 class BudgetView extends StatefulWidget {
-  const BudgetView({super.key});
+  UserModel loggedInUser = UserModel();
+  BudgetView({super.key, required this.loggedInUser});
 
   @override
   State<BudgetView> createState() => _BudgetViewState();
@@ -22,8 +25,9 @@ class _BudgetViewState extends State<BudgetView> {
   User? user = FirebaseAuth.instance.currentUser;
   UserModel loggedInUser = UserModel();
 
-  final HomeController controller = Get.put(HomeController());
-
+  // final HomeController controller = Get.put(HomeController());
+  final controller = Get.put(HomeController());
+  bool isIncome = true;
   @override
   void initState() {
     super.initState();
@@ -72,18 +76,17 @@ class _BudgetViewState extends State<BudgetView> {
             Divider(color: Colors.white),
             //   in word like three thousand four hundred and fifty first word is capital
             Text(
-                "Bal, ${NumberToWord().convert(loggedInUser.balance!.toInt())}",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14),
-              ),
-              SizedBox(height: 4),
-              Text(
-                "Last Updated: ${DateTime.now().toString().substring(0, 16)}",
-                style: TextStyle(color: Colors.white, fontSize: 12),
-              ),
-
+              "Bal, ${NumberToWord().convert(loggedInUser.balance!.toInt())}",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14),
+            ),
+            SizedBox(height: 4),
+            Text(
+              "Last Updated: ${DateTime.now().toString().substring(0, 16)}",
+              style: TextStyle(color: Colors.white, fontSize: 12),
+            ),
           ],
         ),
       ),
@@ -109,7 +112,11 @@ class _BudgetViewState extends State<BudgetView> {
         MaterialButton(
           onPressed: () {
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => SendView()));
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SendView(
+                          recipient: loggedInUser,
+                        )));
           },
           child: _buildCategoryCard(
             bgColor: Color(0xfffbcfcf),
@@ -172,21 +179,27 @@ class _BudgetViewState extends State<BudgetView> {
         ],
       ),
       body: FutureBuilder(
-        future: FirebaseFirestore.instance
-            .collection("users")
-            .doc(user!.uid)
-            .get(),
+        future:
+            FirebaseFirestore.instance.collection("users").doc(user!.uid).get(),
         builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
           return Column(
             children: <Widget>[
+              Text(
+                textAlign: TextAlign.center,
+                "Welcome, ${loggedInUser.fullName}",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               balanceCard(),
               SizedBox(height: 20),
               _buildCategories(),
               SizedBox(height: 20),
-
+              _buildStatementList(),
             ],
           );
         },
@@ -226,6 +239,123 @@ class _BudgetViewState extends State<BudgetView> {
     // as per thousand separator
     return balance?.toStringAsFixed(2).replaceAllMapped(
         RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
+  }
+
+  _buildStatementList() {
+    return Expanded(
+      flex: 1,
+      child: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(user!.uid)
+            .collection('statement')
+            .snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.data!.docs.isEmpty) {
+            return Center(
+              child: Text("No transaction yet"),
+            );
+          }
+          return isIncome
+              ? ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      onTap: () {
+                        _buildDialog(snapshot.data!.docs[index]);
+                      },
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.blue,
+                        child: Text(
+                          snapshot.data!.docs[index]['type'].toString() == "send"
+                              ? "-"
+                              : "+",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      title: Text(snapshot.data!.docs[index]['name'].toString()),
+                      subtitle: Text(snapshot.data!.docs[index]['type']
+                          .toString()),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+// isIncome type send or receive - PKR 100 or + PKR 100
+
+                            snapshot.data!.docs[index]['type'] == "send"
+                                ? "- PKR ${snapshot.data!.docs[index]['amount']}"
+                                : "+ PKR ${snapshot.data!.docs[index]['amount']}",
+                            style: TextStyle(
+                                color: snapshot.data!.docs[index]['type'] == "send"
+                                    ? Colors.red
+                                    : Colors.green),
+                          ),
+                        ],
+                      ),
+                      // subtitle: Text(data['body']),
+                      // trailing: Text(data['balance']),
+                    );
+                  },
+                )
+              : Container();
+        },
+      ),
+    );
+  }
+
+  void _buildDialog(QueryDocumentSnapshot<Object?> doc) {
+    QuickAlert.show(
+      context: context,
+      title: doc['name'],
+      text: doc['type'] == "send"
+          ? "You sent PKR ${doc['amount']}"
+          : "You received PKR ${doc['amount']}",
+      widget: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 10.0),
+          Divider(),
+          Text("Amount: PKR: ${doc['amount']}"),
+          Text("Description: ${doc['description']}"),
+          Text(
+          GetTimeAgo.parse(DateTime.parse(doc['created_at'].toDate()
+              .toString()),
+              locale: 'en'),
+        ),
+        ],
+      ), type: QuickAlertType.success,
+      onConfirmBtnTap: (){
+        Get.back();
+      //   share slip
+      }
+    );
+  }
+
+  String timeAgo(data) {
+    DateTime dateTime = DateTime.parse(data);
+    Duration diff = DateTime.now().difference(dateTime);
+    if (diff.inDays > 365) {
+      return "${(diff.inDays / 365).floor()} years ago";
+    } else if (diff.inDays > 30) {
+      return "${(diff.inDays / 30).floor()} months ago";
+    } else if (diff.inDays > 7) {
+      return "${(diff.inDays / 7).floor()} weeks ago";
+    } else if (diff.inDays > 0) {
+      return "${diff.inDays} days ago";
+    } else if (diff.inHours > 0) {
+      return "${diff.inHours} hours ago";
+    } else if (diff.inMinutes > 0) {
+      return "${diff.inMinutes} minutes ago";
+    } else {
+      return "Just now";
+    }
   }
 
 }

@@ -266,7 +266,7 @@ class _RegistrationViewState extends State<RegistrationView> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Already have an account?"),
+                        Text("Already have an account?", style: TextStyle(fontSize: 12),),
                         TextButton(
                           onPressed: () {
                             Navigator.push(

@@ -5,6 +5,7 @@ import 'package:untitled/app/modules/auth/views/mob_auth_view.dart';
 import 'package:untitled/splash/splash_screen.dart';
 import 'package:untitled/widgets/phone.dart';
 
+import '../../models/user_model.dart';
 import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/auth_view.dart';
 import '../modules/budget/bindings/budget_binding.dart';
@@ -46,7 +47,10 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.BUDGET,
-      page: () => const BudgetView(),
+      page: () =>  BudgetView(
+        loggedInUser: UserModel(),
+
+      ),
       binding: BudgetBinding(),
     ),
     GetPage(
@@ -65,4 +69,5 @@ class AppPages {
       binding: AuthBinding(),
     ),
   ];
+
 }

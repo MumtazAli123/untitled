@@ -169,7 +169,7 @@ class _OTPViewState extends State<OTPView> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Didn't receive the code?"),
+                        Text("Didn't receive the code?", style: TextStyle(fontSize: 12),),
                         TextButton(
                           onPressed: () {
                             _resendOTP(

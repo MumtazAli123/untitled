@@ -1,51 +1,128 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
+import 'package:untitled/models/user_model.dart';
 
 class BudgetController extends GetxController {
   //TODO: Implement BudgetController
 
-  final addBudget = FirebaseFirestore.instance;
+  final transferNominalController = TextEditingController();
+  final descriptionController = TextEditingController();
 
+  final totalBalance = 0.obs;
 
+  var addMoney = 0.0.obs;
+  var sendMoney = 0.0.obs;
 
-  var totalBudget = 0.0.obs;
-  var totalExpense = 0.0.obs;
+  var type = ''.obs;
+
 
   var isRefresh = false.obs;
 
-  // refresh the page
+  var statementInOutList= [].obs;
 
-  @override
-  void refresh() {
-    totalBudget.value = 0;
-    totalExpense.value = 0;
-    calculate();
-  }
+  var isLoading = false.obs;
+
+  final db = FirebaseFirestore.instance;
+  UserModel userModel = UserModel();
+
+  var incomeList = [].obs;
 
 
-
-  void calculate() {
-    totalBudget.value = 0;
-    totalExpense.value = 0;
-    addBudget.collection('budget').get().then((value) {
-      for (var element in value.docs) {
-        totalBudget.value += element['amount'];
-      }
-    });
-
-    addBudget.collection('expense').get().then((value) {
-      for (var element in value.docs) {
-        totalExpense.value += element['amount'];
-      }
-    });
-  }
 
 
   @override
   void onInit() {
     super.onInit();
-    calculate();
+    statementInOut();
+
   }
+
+  void increment() => totalBalance.value++;
+  void decrement(double parse) {
+    if (totalBalance.value > 0) {
+      totalBalance.value--;
+    }
+  }
+
+
+  @override
+  void onClose() {}
+
+  void statementInOut() async {
+    var snapshot = await db.doc('statement').collection('in_out').get();
+    statementInOutList.value = snapshot.docs.reversed.toList();
+  }
+
+  void streamStatementInOut() async {
+    await for (var snapshot
+        in db.doc('statement').collection('in_out').snapshots()) {
+      statementInOutList.value = snapshot.docs.reversed.toList();
+    }
+  }
+
+  void addStatementInOut() async {
+    await db.doc('statement').collection('in_out').add({
+      'type': type.value,
+      'amount': addMoney.value,
+      'created_at': DateTime.now(),
+    });
+    refresh();
+  }
+
+  void sendStatementInOut() async {
+    // save other user data
+    await db.doc('users').collection('statement').add({
+      "user_id": userModel.uid,
+      'name': userModel.fullName,
+      'phone': userModel.number,
+      'email': userModel.email,
+      'type': "send",
+      'amount': transferNominalController.text.trim(),
+      'description': descriptionController.text.trim() == '' ? 'No description' : userModel.fullName,
+
+      'created_at': DateTime.now(),
+    });
+    refresh();
+  }
+
+  void incomeStatementInOut() async {
+    await db.doc('users').collection('statement').add({
+      "user_id": userModel.uid,
+      'name': userModel.fullName,
+      'phone': userModel.number,
+      'type': 'income',
+      'amount': addMoney.value,
+      'created_at': DateTime.now(),
+    });
+    refresh();
+  }
+
+
+
+
+
+
+  @override
+  void refresh() {
+    isRefresh.value = !isRefresh.value;
+  }
+
+  void clear() {
+    addMoney.value = 0.0;
+    sendMoney.value = 0.0;
+  }
+
+  void clearType() {
+    type.value = '';
+  }
+
+  void clearAll() {
+    clear();
+    clearType();
+  }
+
+
 
 
 }
