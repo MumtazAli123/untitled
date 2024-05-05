@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:get_time_ago/get_time_ago.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:untitled/app/modules/budget/views/send_view.dart';
+import 'package:untitled/app/modules/budget/views/statement_view.dart';
 import 'package:untitled/app/modules/budget/views/topup_view.dart';
 import 'package:untitled/app/modules/home/controllers/home_controller.dart';
 
@@ -198,7 +199,30 @@ class _BudgetViewState extends State<BudgetView> {
               balanceCard(),
               SizedBox(height: 20),
               _buildCategories(),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      "Statement",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Spacer(),
+                    TextButton(
+                        onPressed: () {
+                          // _buildBottomSheet();
+                          Get.to(() => StatementView(
+                                userModel: loggedInUser,
+                          ));
+                        },
+                        child: Text("View All")),
+                  ],
+                ),
+              ),
               _buildStatementList(),
             ],
           );
@@ -261,7 +285,8 @@ class _BudgetViewState extends State<BudgetView> {
           }
           return isIncome
               ? ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
+                  itemCount: 5,
+                  reverse: true,
                   itemBuilder: (context, index) {
                     return ListTile(
                       onTap: () {
@@ -270,7 +295,8 @@ class _BudgetViewState extends State<BudgetView> {
                       leading: CircleAvatar(
                         backgroundColor: Colors.blue,
                         child: Text(
-                          snapshot.data!.docs[index]['type'].toString() == "send"
+                          snapshot.data!.docs[index]['type'].toString() ==
+                                  "send"
                               ? "-"
                               : "+",
                           style: TextStyle(
@@ -279,22 +305,24 @@ class _BudgetViewState extends State<BudgetView> {
                           ),
                         ),
                       ),
-                      title: Text(snapshot.data!.docs[index]['name'].toString()),
-                      subtitle: Text(snapshot.data!.docs[index]['type']
-                          .toString()),
+                      title:
+                          Text(snapshot.data!.docs[index]['name'].toString()),
+                      subtitle:
+                          Text(snapshot.data!.docs[index]['type'].toString()),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-// isIncome type send or receive - PKR 100 or + PKR 100
+                            // isIncome type send or receive - PKR 100 or + PKR 100
 
                             snapshot.data!.docs[index]['type'] == "send"
                                 ? "- PKR ${snapshot.data!.docs[index]['amount']}"
                                 : "+ PKR ${snapshot.data!.docs[index]['amount']}",
                             style: TextStyle(
-                                color: snapshot.data!.docs[index]['type'] == "send"
-                                    ? Colors.red
-                                    : Colors.green),
+                                color:
+                                    snapshot.data!.docs[index]['type'] == "send"
+                                        ? Colors.red
+                                        : Colors.green),
                           ),
                         ],
                       ),
@@ -311,32 +339,112 @@ class _BudgetViewState extends State<BudgetView> {
 
   void _buildDialog(QueryDocumentSnapshot<Object?> doc) {
     QuickAlert.show(
-      context: context,
-      title: doc['name'],
-      text: doc['type'] == "send"
-          ? "You sent PKR ${doc['amount']}"
-          : "You received PKR ${doc['amount']}",
-      widget: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 10.0),
-          Divider(),
-          Text("Amount: PKR: ${doc['amount']}"),
-          Text("Description: ${doc['description']}"),
-          Text(
-          GetTimeAgo.parse(DateTime.parse(doc['created_at'].toDate()
-              .toString()),
-              locale: 'en'),
+        context: context,
+        title: doc['name'],
+        text: doc['type'] == "send"
+            ? "You sent PKR ${doc['amount']}"
+            : "You received PKR ${doc['amount']}",
+        widget: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 10.0),
+            Divider(),
+            Text("Amount: PKR: ${doc['amount']}"),
+            Text("Description: ${doc['description']}"),
+            Text(
+              GetTimeAgo.parse(
+                  DateTime.parse(doc['created_at'].toDate().toString()),
+                  locale: 'en'),
+            ),
+          ],
         ),
-        ],
-      ), type: QuickAlertType.success,
-      onConfirmBtnTap: (){
-        Get.back();
-      //   share slip
-      }
+        type: QuickAlertType.success,
+        onConfirmBtnTap: () {
+          Get.back();
+          //   share slip
+        });
+  }
+
+  void _buildBottomSheet() {
+    Get.bottomSheet(
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        // height: 900,
+        child: Column(
+          children: [
+            SizedBox(height: 10),
+            Text("Statement"),
+            Expanded(
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user!.uid)
+                    .collection('statement')
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.data!.docs.isEmpty) {
+                    return Center(
+                      child: Text("No transaction yet"),
+                    );
+                  }
+                  return ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        onTap: () {
+                          _buildDialog(snapshot.data!.docs[index]);
+                        },
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.blue,
+                          child: Text(
+                            snapshot.data!.docs[index]['type'].toString() ==
+                                    "send"
+                                ? "-"
+                                : "+",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        title:
+                            Text(snapshot.data!.docs[index]['name'].toString()),
+                        subtitle:
+                            Text(snapshot.data!.docs[index]['type'].toString()),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              snapshot.data!.docs[index]['type'] == "send"
+                                  ? "- PKR ${snapshot.data!.docs[index]['amount']}"
+                                  : "+ PKR ${snapshot.data!.docs[index]['amount']}",
+                              style: TextStyle(
+                                  color: snapshot.data!.docs[index]['type'] ==
+                                          "send"
+                                      ? Colors.red
+                                      : Colors.green),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
-  
 }
-
