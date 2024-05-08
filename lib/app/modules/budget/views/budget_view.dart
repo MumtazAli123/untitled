@@ -29,9 +29,12 @@ class _BudgetViewState extends State<BudgetView> {
   // final HomeController controller = Get.put(HomeController());
   final controller = Get.put(HomeController());
   bool isIncome = true;
+
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
+    isLoading = true;
     FirebaseFirestore.instance
         .collection("users")
         .doc(user!.uid)
@@ -285,8 +288,11 @@ class _BudgetViewState extends State<BudgetView> {
           }
           return isIncome
               ? ListView.builder(
-                  itemCount: 5,
-                  reverse: true,
+                  // show only 0 to 5 items in list
+                  itemCount: snapshot.data!.docs.length > 4
+                      ? 4
+                      : snapshot.data!.docs.length,
+                  reverse: false,
                   itemBuilder: (context, index) {
                     return ListTile(
                       onTap: () {

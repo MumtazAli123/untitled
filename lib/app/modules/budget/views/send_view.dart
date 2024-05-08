@@ -378,7 +378,7 @@ class _SendViewState extends State<SendView> {
     else {
       // _otpSendFromFirebase();
       // _otpSendMoney(recipient!);
-      sendMoneyToUser(recipient!);
+      sendMoneyToUser(recipient);
     }
   }
 

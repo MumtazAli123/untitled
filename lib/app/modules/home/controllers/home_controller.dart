@@ -37,7 +37,7 @@ class HomeController extends GetxController {
   void article() async {
 
     var snapshot = await FirebaseFirestore.instance.collection('users').
-    doc(user!.uid).collection('statement').get();
+    doc(user!.uid).collection('budget').get();
     articles.value = snapshot.docs.reversed.toList();
 
   }
@@ -46,7 +46,7 @@ class HomeController extends GetxController {
     var logger = Logger();
 
     await for (var snapshot
-        in FirebaseFirestore.instance.collection('article').snapshots()) {
+        in FirebaseFirestore.instance.collection('users').doc(user!.uid).collection('budget').snapshots()) {
       incomeList.value = snapshot.docs.reversed.toList();
       logger.i(timeAgo = snapshot.docs[0].data()['created_at']);
     }
@@ -64,7 +64,7 @@ class HomeController extends GetxController {
   void onClose() {}
 
   void addArticle(String text, String text2, String text3) {
-    FirebaseFirestore.instance.collection('article').add({
+    FirebaseFirestore.instance.collection('users').doc(user?.uid).collection('budget').add({
       'title': text,
       'body': text2,
       "balance": text3,
@@ -76,8 +76,11 @@ class HomeController extends GetxController {
   }
 
   void updateArticle(id, Map<String, String> map) {
+  //   update user uid budget
     FirebaseFirestore.instance
-        .collection('article')
+        .collection('users')
+        .doc(user?.uid)
+        .collection('budget')
         .doc(id)
         .update(map)
         .then((value) {
@@ -87,7 +90,9 @@ class HomeController extends GetxController {
 
   void deleteArticle(id) {
     FirebaseFirestore.instance
-        .collection('article')
+        .collection('users')
+        .doc(user?.uid)
+        .collection('budget')
         .doc(id)
         .delete()
         .then((value) {
@@ -95,11 +100,11 @@ class HomeController extends GetxController {
     });
   }
 
-  void addExpense(String title, String text2, String text3) {
-    FirebaseFirestore.instance.collection('article').add({
+  void addExpense(String title, String desc, String balance) {
+    FirebaseFirestore.instance.collection('users').doc(user?.uid).collection('budget').add({
       'title': title,
-      'body': text2,
-      "balance": text3,
+      'body': desc,
+      "balance": balance,
       'created_at': DateTime.now().toString(),
       'type': 'expense',
 
@@ -110,7 +115,9 @@ class HomeController extends GetxController {
 
   void updateExpense(id, Map<String, String> map) {
     FirebaseFirestore.instance
-        .collection('expense')
+        .collection('users')
+        .doc(user?.uid)
+        .collection('budget')
         .doc(id)
         .update(map)
         .then((value) {
@@ -120,7 +127,9 @@ class HomeController extends GetxController {
 
   void deleteExpense(id) {
     FirebaseFirestore.instance
-        .collection('expense')
+        .collection('users')
+        .doc(user?.uid)
+        .collection('budget')
         .doc(id)
         .delete()
         .then((value) {

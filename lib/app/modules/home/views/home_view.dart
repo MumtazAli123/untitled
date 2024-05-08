@@ -6,6 +6,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:get_time_ago/get_time_ago.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:untitled/drawer/drawer.dart';
 
 import '../../../../widgets/mix_widgets.dart';
@@ -59,7 +60,7 @@ class _HomeViewState extends State<HomeView> {
             _buildLocationDialog();
           },
           child: Obx(() => Text(
-            'Total Balance: ${controller.totalIncome.value - controller.totalExpense.value}',
+            'Total Amount: ${controller.totalBalance.value > 0 ? '+${controller.totalBalance.value}' : controller.totalBalance.value} ',
             style: TextStyle(
               color: controller.totalBalance.value >= 0
                   ? Colors.green
@@ -101,103 +102,215 @@ class _HomeViewState extends State<HomeView> {
           ),
         ],
       ),
-      body: Center(
-        child: SizedBox(
-          width: 450,
-          child: Obx(() {
-            if (controller.incomeList.isEmpty) {
-              return const Center(
-                  child: Text(
-                'No data found',
-                style: TextStyle(fontSize: 20),
-              ));
-            } else {
-              return ListView.builder(
-                restorationId: 'list',
-                reverse: false,
-                itemCount: controller.incomeList.length,
-                itemBuilder: (context, index) {
-                  return Slidable(
-                    endActionPane: ActionPane(
-                      motion: ScrollMotion(),
-                      children: [
-                        SlidableAction(
-                          onPressed: (context) {
-                            _buildEditArticleDialog(
-                                controller.incomeList[index].id,
-                                controller.incomeList[index].data()['title'],
-                                controller.incomeList[index].data()['body'],
-                                controller.incomeList[index].data()['balance']);
-                          },
-                          icon: Icons.edit,
-                          label: 'Edit',
-                          flex: 1,
-                          backgroundColor: Colors.green,
-                        ),
-                        SlidableAction(
-                          onPressed: (context) {
-                            controller
-                                .deleteArticle(controller.incomeList[index].id);
-                          },
-                          icon: Icons.delete,
-                          label: 'Delete',
-                          flex: 1,
-                          backgroundColor: Colors.red,
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      onTap: () {
-                        _buildDetailDialog(
-                            controller.incomeList[index].data()['title'],
-                            controller.incomeList[index].data()['body'],
-                            controller.incomeList[index].data()['balance'],
-                            controller.incomeList[index].data()['created_at']);
-                      },
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.blue,
-                        child: wText(controller.incomeList[index]
-                            .data()['title']
-                            .toString()
-                            .substring(0, 1)
-                            .toUpperCase()),
-                      ),
-                      title: Text(controller.incomeList[index].data()['title']),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+      // body: Center(
+      //   child: SizedBox(
+      //     width: 450,
+      //     child: Obx(() {
+      //       if (controller.incomeList.isEmpty) {
+      //         return const Center(
+      //             child: Text(
+      //           'No data found',
+      //           style: TextStyle(fontSize: 20),
+      //         ));
+      //       } else {
+      //         return ListView.builder(
+      //           restorationId: 'list',
+      //           reverse: false,
+      //           itemCount: controller.incomeList.length,
+      //           itemBuilder: (context, index) {
+      //             return Column(
+      //               children: [
+      //
+      //                 Slidable(
+      //                   endActionPane: ActionPane(
+      //                     motion: ScrollMotion(),
+      //                     children: [
+      //                       // total balance
+      //                       SlidableAction(
+      //                         onPressed: (context) {
+      //                           _buildEditArticleDialog(
+      //                               controller.incomeList[index].id,
+      //                               controller.incomeList[index].data()['title'],
+      //                               controller.incomeList[index].data()['body'],
+      //                               controller.incomeList[index].data()['balance']);
+      //                         },
+      //                         icon: Icons.edit,
+      //                         label: 'Edit',
+      //                         flex: 1,
+      //                         backgroundColor: Colors.green,
+      //                       ),
+      //                       SlidableAction(
+      //                         onPressed: (context) {
+      //                           controller
+      //                               .deleteArticle(controller.incomeList[index].id);
+      //                         },
+      //                         icon: Icons.delete,
+      //                         label: 'Delete',
+      //                         flex: 1,
+      //                         backgroundColor: Colors.red,
+      //                       ),
+      //                     ],
+      //                   ),
+      //                   child: ListTile(
+      //                     onTap: () {
+      //                       _buildDetailDialog(
+      //                           controller.incomeList[index].data()['title'],
+      //                           controller.incomeList[index].data()['body'],
+      //                           controller.incomeList[index].data()['balance'],
+      //                           controller.incomeList[index].data()['created_at']);
+      //                     },
+      //                     leading: CircleAvatar(
+      //                       backgroundColor: Colors.blue,
+      //                       child: wText(controller.incomeList[index]
+      //                           .data()['title']
+      //                           .toString()
+      //                           .substring(0, 1)
+      //                           .toUpperCase()),
+      //                     ),
+      //                     title: Text(controller.incomeList[index].data()['title']),
+      //                     subtitle: Column(
+      //                       crossAxisAlignment: CrossAxisAlignment.start,
+      //                       children: [
+      //                         Text(controller.incomeList[index].data()['body']),
+      //                         Text(
+      //                             GetTimeAgo.parse(DateTime.parse(controller
+      //                                 .incomeList[index]
+      //                                 .data()['created_at']
+      //                                 .toString())),
+      //                             style: GoogleFonts.cabin(
+      //                                 color: Colors.grey,
+      //                                 fontSize: 12,
+      //                                 fontWeight: FontWeight.bold)),
+      //                       ],
+      //                     ),
+      //                     trailing: Text(
+      //                       controller.incomeList[index].data()['type'] == 'income'
+      //                           ? '+ ${controller.incomeList[index].data()['balance']}'
+      //                           : '- ${controller.incomeList[index].data()['balance']}',
+      //                       style: TextStyle(
+      //                           color: controller.incomeList[index].data()['type'] ==
+      //                                   'income'
+      //                               ? Colors.green
+      //                               : Colors.red,
+      //                           fontSize: 20,
+      //                           fontWeight: FontWeight.bold
+      //                       ),
+      //                     ),
+      //                   ),
+      //                 ),
+      //               ],
+      //             );
+      //           },
+      //         );
+      //       }
+      //     }),
+      //   ),
+      // ),
+      body: _buildBody(),
+    );
+  }
+
+  _buildBody() {
+    return Center(
+      child: SizedBox(
+        width: 450,
+        child: Obx(() {
+          if (controller.incomeList.isEmpty) {
+            return const Center(
+                child: Text(
+              'No data found',
+              style: TextStyle(fontSize: 20),
+            ));
+          } else {
+            return ListView.builder(
+              restorationId: 'list',
+              reverse: false,
+              itemCount: controller.incomeList.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    Slidable(
+                      endActionPane: ActionPane(
+                        motion: ScrollMotion(),
                         children: [
-                          Text(controller.incomeList[index].data()['body']),
-                          Text(
-                              GetTimeAgo.parse(DateTime.parse(controller
-                                  .incomeList[index]
-                                  .data()['created_at']
-                                  .toString())),
-                              style: GoogleFonts.cabin(
-                                  color: Colors.grey,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold)),
+                          // total balance
+                          SlidableAction(
+                            onPressed: (context) {
+                              _buildEditArticleDialog(
+                                  controller.incomeList[index].id,
+                                  controller.incomeList[index].data()['title'],
+                                  controller.incomeList[index].data()['body'],
+                                  controller.incomeList[index].data()['balance']);
+                            },
+                            icon: Icons.edit,
+                            label: 'Edit',
+                            flex: 1,
+                            backgroundColor: Colors.green,
+                          ),
+                          SlidableAction(
+                            onPressed: (context) {
+                              controller
+                                  .deleteArticle(controller.incomeList[index].id);
+                            },
+                            icon: Icons.delete,
+                            label: 'Delete',
+                            flex: 1,
+                            backgroundColor: Colors.red,
+                          ),
                         ],
                       ),
-                      trailing: Text(
-                        controller.incomeList[index].data()['type'] == 'income'
+                      child: ListTile(
+                        onTap: () {
+                          _buildDetailDialog(
+                              controller.incomeList[index].data()['title'],
+                              controller.incomeList[index].data()['body'],
+                              controller.incomeList[index].data()['balance'],
+                              controller.incomeList[index].data()['created_at']);
+                        },
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.blue,
+                          child: wText(controller.incomeList[index]
+                              .data()['title']
+                              .toString()
+                              .substring(0, 1)
+                              .toUpperCase()),
+                        ),
+                        title: Text(controller.incomeList[index].data()['title']),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(controller.incomeList[index].data()['body']),
+                            Text(
+                                GetTimeAgo.parse(DateTime.parse(controller
+                                    .incomeList[index]
+                                    .data()['created_at']
+                                    .toString())),
+                                style: GoogleFonts.cabin(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        trailing: Text( controller.incomeList[index].data()['type'] == 'income'
                             ? '+ ${controller.incomeList[index].data()['balance']}'
                             : '- ${controller.incomeList[index].data()['balance']}',
-                        style: TextStyle(
-                            color: controller.incomeList[index].data()['type'] ==
-                                    'income'
-                                ? Colors.green
-                                : Colors.red,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold
+                          style: TextStyle(
+                              color: controller.incomeList[index].data()['type'] ==
+                                  'income'
+                                  ? Colors.green
+                                  : Colors.red,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold
+                          ),
                         ),
                       ),
                     ),
-                  );
-                },
-              );
-            }
-          }),
-        ),
+                  ],
+                );
+              },
+            );
+          }
+        }),
       ),
     );
   }
@@ -206,66 +319,33 @@ class _HomeViewState extends State<HomeView> {
     final TextEditingController titleController = TextEditingController();
     final TextEditingController bodyController = TextEditingController();
     final TextEditingController balanceController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Add Article'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(
-                    hintText: 'Title',
-                    labelText: 'Title',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )),
-              ),
-              SizedBox(height: 10.0),
-              TextField(
-                maxLines: 3,
-                controller: bodyController,
-                decoration: InputDecoration(
-                    hintText: 'Body',
-                    labelText: 'Body',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )),
-              ),
-              SizedBox(height: 10.0),
-              // balance add and minus
-              TextField(
-                controller: balanceController,
-                decoration: InputDecoration(
-                    hintText: 'Balance',
-                    labelText: 'Balance',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )),
-              )
-            ],
+    QuickAlert.show(
+      type: QuickAlertType.info,
+      title: 'Add Income',
+      widget: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: titleController,
+            decoration: InputDecoration(hintText: 'Title'),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                controller.addArticle(titleController.text, bodyController.text,
-                    balanceController.text);
-                controller.increment();
-                Navigator.pop(context);
-              },
-              child: Text('Add'),
-            ),
-          ],
-        );
+          TextField(
+            controller: bodyController,
+            decoration: InputDecoration(hintText: 'Description'),
+          ),
+          TextField(
+            controller: balanceController,
+            decoration: InputDecoration(hintText: 'Balance'),
+          ),
+        ],
+      ),
+      onConfirmBtnTap: () {
+        Get.back();
+        controller.addArticle(
+            titleController.text, bodyController.text, balanceController.text);
+        controller.increment();
       },
+      context: context,
     );
   }
 
@@ -327,68 +407,52 @@ class _HomeViewState extends State<HomeView> {
     final TextEditingController titleController = TextEditingController();
     final TextEditingController bodyController = TextEditingController();
     final TextEditingController balanceController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Add Article'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(
-                    hintText: 'Title',
-                    labelText: 'Title',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )),
-              ),
-              SizedBox(height: 10.0),
-              TextField(
-                maxLines: 3,
-                controller: bodyController,
-                decoration: InputDecoration(
-                    hintText: 'Description',
-                    labelText: 'Description',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )),
-              ),
-              SizedBox(height: 10.0),
-              // balance add and minus
-              TextField(
-                controller: balanceController,
-                decoration: InputDecoration(
-                    hintText: 'Amount',
-                    labelText: 'Amount',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    )),
-              )
-            ],
+    QuickAlert.show(
+      type: QuickAlertType.info,
+      title: 'Add Expense',
+      widget: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: titleController,
+            decoration: InputDecoration(
+                hintText: 'Title',
+                labelText: 'Title',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                )),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                controller.addArticle(titleController.text, bodyController.text,
-                    balanceController.text);
-                controller.decrement(
-                  double.parse(balanceController.text),
-                );
-                Navigator.pop(context);
-              },
-              child: Text('Add'),
-            ),
-          ],
-        );
+          SizedBox(height: 10.0),
+          TextField(
+            maxLines: 2,
+            controller: bodyController,
+            decoration: InputDecoration(
+                hintText: 'Description',
+                labelText: 'Description',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                )),
+          ),
+          SizedBox(height: 10.0),
+          // balance add and minus
+          TextField(
+            controller: balanceController,
+            decoration: InputDecoration(
+                hintText: 'Balance',
+                labelText: 'Balance',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                )),
+          )
+        ],
+      ),
+      onConfirmBtnTap: () {
+        Get.back();
+        controller.addExpense(
+            titleController.text, bodyController.text, balanceController.text);
+        controller.increment();
       },
+      context: context,
     );
   }
 
@@ -405,7 +469,6 @@ class _HomeViewState extends State<HomeView> {
             wText('State: ${counterController.province.string}'),
             wText('Country: ${counterController.country.string}'),
             wText('Address: ${counterController.address.string}'),
-
           ],
         ),
         actions: [
@@ -417,35 +480,31 @@ class _HomeViewState extends State<HomeView> {
           ),
         ],
       ),
-
-
     );
   }
 
   void _buildDetailDialog(data, data2, data3, data4) {
-    Get.dialog(
-      AlertDialog(
-        title: Text('Detail'),
-        content: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            wText('Title: $data'),
-            wText('Description: $data2'),
-            wText('Amount: $data3'),
-            wText('Created At: $data4'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('Close'),
-          ),
+    QuickAlert.show(
+      type: QuickAlertType.info,
+      title: 'Detail',
+      text: "$data",
+      widget: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Divider(),
+          wText('Title: $data'),
+          wText('Description: $data2'),
+          wText('Amount: $data3'),
+          // time ago
+          cText("Update At: ${GetTimeAgo.parse(DateTime.parse(data4))}"),
+          //   just date time not seconds
+          Text(
+              "${DateTime.parse(data4).day}/${DateTime.parse(data4).month}/${DateTime.parse(data4).year} - ${DateTime.parse(data4).hour}:${DateTime.parse(data4).minute}"),
         ],
       ),
+      context: context,
     );
   }
 }
