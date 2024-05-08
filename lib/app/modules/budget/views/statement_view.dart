@@ -13,31 +13,32 @@ import 'package:untitled/app/modules/budget/controllers/budget_controller.dart';
 import '../../../../models/user_model.dart';
 
 class StatementView extends StatefulWidget {
-  UserModel userModel ;
-   StatementView({super.key, required this.userModel});
+  UserModel userModel;
+  StatementView({super.key, required this.userModel});
 
   @override
   State<StatementView> createState() => _StatementViewState();
 }
 
 class _StatementViewState extends State<StatementView> {
-
   final controller = Get.put(BudgetController());
   final db = FirebaseFirestore.instance;
   final user = FirebaseAuth.instance.currentUser;
 
-  bool isLoading = false;
+  bool isLoading = true;
 
   @override
   void initState() {
     controller.statementInOut();
     super.initState();
+    isLoading = false;
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:  Text("${widget.userModel.fullName}"),
+        title: Text("${widget.userModel.fullName}"),
         centerTitle: true,
       ),
       body: _buildBody(),
@@ -75,18 +76,17 @@ class _StatementViewState extends State<StatementView> {
               leading: CircleAvatar(
                 backgroundColor: Colors.blue,
                 child: Text(
-                  snapshot.data!.docs[index]['name'].toString()[0].toUpperCase(),
+                  snapshot.data!.docs[index]['name']
+                      .toString()[0]
+                      .toUpperCase(),
                   style: GoogleFonts.roboto(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-
+                  ),
                 ),
               ),
-              ),
-              title:
-              Text(snapshot.data!.docs[index]['name'].toString()),
-              subtitle:
-              Text(snapshot.data!.docs[index]['type'].toString()),
+              title: Text(snapshot.data!.docs[index]['name'].toString()),
+              subtitle: Text(snapshot.data!.docs[index]['type'].toString()),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -108,48 +108,44 @@ class _StatementViewState extends State<StatementView> {
   }
 
   void _buildDialog(QueryDocumentSnapshot<Object?> doc) {
-    QuickAlert.show(context: context,
-        type: QuickAlertType.confirm,
-        title: "Transaction Details",
-        text: "${doc['type']} "== "send"
-            ? "You sent PKR ${doc['amount']}"
-            : "You received PKR ${doc['amount']}",
-        widget: Column(
-          children: [
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text("Name: ${doc['name']}"),
-              subtitle: Text("Phone: ${doc['phone']}"),
-            ),
-            ListTile(
-              leading: Icon(Icons.email),
-              title: Text("Email: ${doc['email']}"),
-              subtitle: Text("Type: ${doc['type']}"),
-            ),
-            ListTile(
-              leading: Icon(Icons.money),
-              title: Text("Amount: PKR ${doc['amount']}"),
-              subtitle: Text("Description: ${doc['description']}"),
-            ),
-            ListTile(
-              leading: Icon(Icons.access_time),
-              title:  Text(
-                GetTimeAgo.parse(
-                    DateTime.parse("${doc['created_at'].toDate()}".toString()),
-                    locale: 'en'),
-              ),
-              // time not seconds show
-              subtitle:  Text(
-                "${doc['created_at'].toDate()}".toString().substring(0, 19),
-              ),
-            ),
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.confirm,
+      title: "Transaction Details",
+      // text: "You ${doc['type']}, PKR: ${doc['amount']}",
+      // you sent or received
+      text: "You ${doc['type']} PKR: ${doc['amount']}",
+      widget: Column(
+        children: [
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.person),
+            title: Text("Name: ${doc['name']}"),
+            subtitle: Text("Phone: ${doc['phone']}"),
+          ),
+          ListTile(
+            leading: Icon(Icons.money),
+            title: Text("Amount: PKR ${doc['amount']}"),
+            // subtitle: Text("You: ${doc['type']}"),
+            // you sent or received
+            subtitle: Text("You ${doc['type']} PKR ${doc['amount']}"),
 
-          ],
-        ),
-        confirmBtnText: "Close",
-
+          ),
+          ListTile(
+            leading: Icon(Icons.access_time),
+            title: Text(
+              GetTimeAgo.parse(
+                  DateTime.parse("${doc['created_at'].toDate()}".toString()),
+                  locale: 'en'),
+            ),
+            // time not seconds show
+            subtitle: Text(
+              "${doc['created_at'].toDate()}".toString().substring(0, 19),
+            ),
+          ),
+        ],
+      ),
+      confirmBtnText: "Close",
     );
   }
-
 }
