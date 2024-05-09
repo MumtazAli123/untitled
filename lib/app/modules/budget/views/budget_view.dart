@@ -86,7 +86,7 @@ class _BudgetViewState extends State<BudgetView> {
             Divider(color: Colors.white),
             //   in word like three thousand four hundred and fifty first word is capital
             Text(
-              "Bal, ${NumberToWord().convert(loggedInUser.balance!.toInt())}",
+              "Balance, ${NumberToWord().convert(loggedInUser.balance!.toInt())}",
               style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w500,
