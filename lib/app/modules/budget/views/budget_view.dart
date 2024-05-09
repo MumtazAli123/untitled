@@ -50,11 +50,17 @@ class _BudgetViewState extends State<BudgetView> {
   Widget balanceCard() {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 6),
-      height: 200,
+      height: 210,
       width: 400,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: Color(0xff3f63ff),
+        // color: Colors.blue,
+        image: DecorationImage(
+          image: AssetImage("assets/images/wallet.png"),
+          fit: BoxFit.cover,
+          alignment: Alignment.topRight,
+        ),
+        shape: BoxShape.rectangle,
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32.0),
