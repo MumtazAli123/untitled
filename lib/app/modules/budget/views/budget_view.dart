@@ -43,8 +43,7 @@ class _BudgetViewState extends State<BudgetView> {
       loggedInUser = UserModel.fromMap(value.data());
       setState(() {});
     });
-
-    controller.streamArticle();
+    // controller.streamArticle();
   }
 
   Widget balanceCard() {
@@ -74,7 +73,9 @@ class _BudgetViewState extends State<BudgetView> {
             ),
             SizedBox(height: 4),
             Text(
-              "PKR: ${currencyFormat(loggedInUser.balance)}",
+              loggedInUser.balance == null
+                  ? "PKR 0.00"
+                  : "PKR ${currencyFormat(loggedInUser.balance)}", // 1000.00
               //
 
               style: TextStyle(
@@ -84,14 +85,13 @@ class _BudgetViewState extends State<BudgetView> {
             ),
             SizedBox(height: 4),
             Divider(color: Colors.white),
-            //   in word like three thousand four hundred and fifty first word is capital
-            Text(
-              "Balance, ${NumberToWord().convert(loggedInUser.balance!.toInt())}",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14),
-            ),
+            // Text(
+            //   "Balance, ${NumberToWord().convert(loggedInUser.balance!.toInt())}",
+            //   style: TextStyle(
+            //       color: Colors.white,
+            //       fontWeight: FontWeight.w500,
+            //       fontSize: 14),
+            // ),
             SizedBox(height: 4),
             Text(
               "Last Updated: ${DateTime.now().toString().substring(0, 16)}",
@@ -146,7 +146,7 @@ class _BudgetViewState extends State<BudgetView> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.backspace_sharp),
+          icon: Icon(Icons.close),
           onPressed: () {
             Get.toNamed('/home');
           },
@@ -154,16 +154,16 @@ class _BudgetViewState extends State<BudgetView> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(
-              height: 50,
-              child: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Image.asset(
-                  "assets/images/wallet.png",
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
+            // SizedBox(
+            //   height: 50,
+            //   child: CircleAvatar(
+            //     backgroundColor: Colors.white,
+            //     child: Image.asset(
+            //       "assets/images/wallet.png",
+            //       fit: BoxFit.contain,
+            //     ),
+            //   ),
+            // ),
             ActionChip(
               label: Text("Logout"),
               onPressed: () {
@@ -188,55 +188,56 @@ class _BudgetViewState extends State<BudgetView> {
           ),
         ],
       ),
-      body: FutureBuilder(
-        future:
-            FirebaseFirestore.instance.collection("users").doc(user!.uid).get(),
-        builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          return Column(
-            children: <Widget>[
-              Text(
-                textAlign: TextAlign.center,
-                "Welcome, ${loggedInUser.fullName}",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              balanceCard(),
-              SizedBox(height: 20),
-              _buildCategories(),
-              SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: <Widget>[
-                    Text(
-                      "Statement",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Spacer(),
-                    TextButton(
-                        onPressed: () {
-                          // _buildBottomSheet();
-                          Get.to(() => StatementView(
-                                userModel: loggedInUser,
-                          ));
-                        },
-                        child: Text("View All")),
-                  ],
-                ),
-              ),
-              _buildStatementList(),
-            ],
-          );
-        },
-      ),
+      // body: FutureBuilder(
+      //   future:
+      //       FirebaseFirestore.instance.collection("users").doc(user!.uid).get(),
+      //   builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+      //     if (snapshot.connectionState == ConnectionState.waiting) {
+      //       return Center(child: CircularProgressIndicator());
+      //     }
+      //     return Column(
+      //       children: <Widget>[
+      //         Text(
+      //           textAlign: TextAlign.center,
+      //           "Welcome, ${loggedInUser.fullName}",
+      //           style: TextStyle(
+      //             fontSize: 18,
+      //             fontWeight: FontWeight.bold,
+      //           ),
+      //         ),
+      //         balanceCard(),
+      //         SizedBox(height: 20),
+      //         _buildCategories(),
+      //         SizedBox(height: 10),
+      //         Padding(
+      //           padding: const EdgeInsets.all(8.0),
+      //           child: Row(
+      //             children: <Widget>[
+      //               Text(
+      //                 "Statement",
+      //                 style: TextStyle(
+      //                   fontSize: 18,
+      //                   fontWeight: FontWeight.bold,
+      //                 ),
+      //               ),
+      //               Spacer(),
+      //               TextButton(
+      //                   onPressed: () {
+      //                     // _buildBottomSheet();
+      //                     Get.to(() => StatementView(
+      //                           userModel: loggedInUser,
+      //                     ));
+      //                   },
+      //                   child: Text("View All")),
+      //             ],
+      //           ),
+      //         ),
+      //         _buildStatementList(),
+      //       ],
+      //     );
+      //   },
+      // ),
+      body: _buildBody(),
     );
   }
 
@@ -458,5 +459,48 @@ class _BudgetViewState extends State<BudgetView> {
         ),
       ),
     );
+  }
+
+  _buildBody() {
+    return Column(
+      children: <Widget>[
+        Text(
+          "Welcome, ${loggedInUser.fullName}",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        balanceCard(),
+        SizedBox(height: 20),
+        _buildCategories(),
+        SizedBox(height: 10),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: <Widget>[
+              Text(
+                "Statement",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Spacer(),
+              TextButton(
+                  onPressed: () {
+                    // _buildBottomSheet();
+                    Get.to(() => StatementView(
+                          userModel: loggedInUser,
+                        ));
+                  },
+                  child: Text("View All")),
+            ],
+          ),
+        ),
+        _buildStatementList(),
+      ],
+    );
+
   }
 }

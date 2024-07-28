@@ -50,6 +50,15 @@ class MyDrawer extends StatelessWidget {
               Get.toNamed('/budget');
             },
           ),
+          // animation
+          ListTile(
+            title: Text('Animation'),
+            leading: Icon(Icons.person),
+            onTap: () {
+              Get.toNamed('/animation');
+            },
+          ),
+
           ListTile(
             title: Text('Auth'),
             leading: Icon(Icons.person),

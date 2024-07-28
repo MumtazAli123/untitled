@@ -1,6 +1,7 @@
-// ignore_for_file: prefer_const_constructors , prefer_const_literals_to_create_immutables
-
 import 'package:get/get.dart';
+
+import 'package:untitled/app/modules/animation/bindings/animation_binding.dart';
+import 'package:untitled/app/modules/animation/views/animation_view.dart';
 import 'package:untitled/app/modules/auth/views/mob_auth_view.dart';
 import 'package:untitled/splash/splash_screen.dart';
 import 'package:untitled/widgets/phone.dart';
@@ -14,6 +15,8 @@ import '../modules/counter/bindings/counter_binding.dart';
 import '../modules/counter/views/counter_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+
+// ignore_for_file: prefer_const_constructors , prefer_const_literals_to_create_immutables
 
 part 'app_routes.dart';
 
@@ -47,9 +50,8 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.BUDGET,
-      page: () =>  BudgetView(
+      page: () => BudgetView(
         loggedInUser: UserModel(),
-
       ),
       binding: BudgetBinding(),
     ),
@@ -68,6 +70,10 @@ class AppPages {
       page: () => PhoneView(),
       binding: AuthBinding(),
     ),
+    GetPage(
+      name: _Paths.ANIMATION,
+      page: () => AnimationView(),
+      binding: AnimationBinding(),
+    ),
   ];
-
 }
