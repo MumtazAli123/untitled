@@ -8,6 +8,7 @@ import 'package:get_time_ago/get_time_ago.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:untitled/drawer/drawer.dart';
+import 'package:untitled/widgets/nav_appbar.dart';
 
 import '../../../../widgets/mix_widgets.dart';
 import '../../auth/views/mob_auth_view.dart';
@@ -53,54 +54,8 @@ class _HomeViewState extends State<HomeView> {
           ),
         ],
       ),
-      appBar: AppBar(
-        iconTheme:  IconThemeData(color: Theme.of(context).brightness == Brightness.light ? Colors.black : Colors.white),
-        title: TextButton(
-          onPressed: (){
-            _buildLocationDialog();
-          },
-          child: Obx(() => Text(
-            'Total Amount: ${controller.totalBalance.value > 0 ? '+${controller.totalBalance.value}' : controller.totalBalance.value} ',
-            style: TextStyle(
-              color: controller.totalBalance.value >= 0
-                  ? Colors.green
-                  : Colors.red,
-            ),
-          )),
-        ),
-        centerTitle: true,
-        actions: [
-          // auth
-          IconButton(
-            onPressed: () {
-              Get.isLogEnable = !Get.isLogEnable;
-              Get.snackbar(
-                'Log',
-                Get.isLogEnable ? 'Enabled' : 'Disabled',
-                snackPosition: SnackPosition.BOTTOM,
-
-
-              );
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MobAuthView(),
-                ),
-                    (route) => false,
-              );
-
-            },
-            icon: Icon(Icons.lock, color: Colors.green),
-          ),
-          IconButton(
-            onPressed: () {
-              controller.streamArticle();
-            },
-            icon: controller.isRefresh.value
-                ? Icon(Icons.refresh, color: Colors.green)
-                : Icon(Icons.refresh_outlined, color: Colors.red),
-          ),
-        ],
+      appBar: NavAppBar(
+        title: 'Home',
       ),
       // body: Center(
       //   child: SizedBox(

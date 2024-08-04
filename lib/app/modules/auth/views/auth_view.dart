@@ -115,7 +115,8 @@ class _AuthViewState extends State<AuthView> {
                     wText('Don\'t have an account?'),
                     TextButton(
                       onPressed: () {
-                        Get.to(() => const RegistrationView());
+                        // Get.to(() => const RegistrationView());
+                        Get.toNamed('/register');
                       },
                       child: wText('Registration', color: Colors.green),
                     ),

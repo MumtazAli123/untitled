@@ -3,6 +3,10 @@ import 'package:get/get.dart';
 import 'package:untitled/app/modules/animation/bindings/animation_binding.dart';
 import 'package:untitled/app/modules/animation/views/animation_view.dart';
 import 'package:untitled/app/modules/auth/views/mob_auth_view.dart';
+import 'package:untitled/app/modules/notification/bindings/notification_binding.dart';
+import 'package:untitled/app/modules/notification/views/notification_view.dart';
+import 'package:untitled/app/modules/register/bindings/register_binding.dart';
+import 'package:untitled/app/modules/register/views/register_view.dart';
 import 'package:untitled/splash/splash_screen.dart';
 import 'package:untitled/widgets/phone.dart';
 
@@ -74,6 +78,16 @@ class AppPages {
       name: _Paths.ANIMATION,
       page: () => AnimationView(),
       binding: AnimationBinding(),
+    ),
+    GetPage(
+      name: _Paths.NOTIFICATION,
+      page: () => NotificationView(),
+      binding: NotificationBinding(),
+    ),
+    GetPage(
+      name: _Paths.REGISTER,
+      page: () => RegisterView(),
+      binding: RegisterBinding(),
     ),
   ];
 }

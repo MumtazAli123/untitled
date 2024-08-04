@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 
-import '../controllers/animation_controller.dart';
 
 class AnimationView extends GetView<AnimatedContainer> {
   const AnimationView({super.key});

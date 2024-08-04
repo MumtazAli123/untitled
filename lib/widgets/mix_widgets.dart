@@ -1,27 +1,38 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
-wText(String upperCase, { Color? color}) {
+bool isLoading = false;
+
+
+wText(String upperCase,  { Color? color, double? size}) {
   return Text(
     upperCase,
     style: GoogleFonts.roboto(
-      fontSize: 20,
+      fontSize: size,
       fontWeight: FontWeight.bold,
       color: color,
     ),
   );
 }
+eText(String s, {double size = 20, Color color = Colors.black}) {
+  return Text(
+    textAlign: TextAlign.center,
+    s, style: GoogleFonts.salsa(fontSize: size, color: color),);
+}
+
 cText(String upperCase, {Color? color}) {
   return Text(
     textAlign: TextAlign.center,
     upperCase,
     style: GoogleFonts.cabin(
-      fontSize: 14,
+      fontSize: 12,
       // fontWeight: FontWeight.bold,
       color: color,
 
@@ -90,17 +101,28 @@ wDialogBox(BuildContext context, String title, String content, Function() onPres
 
 // customButton
 
-wButton({required String text, required Function() onPressed, Color? color, Color? textColor, double? width, double? height}) {
-  return ElevatedButton(
-    onPressed: onPressed,
-    style: ElevatedButton.styleFrom(
-      foregroundColor: textColor, backgroundColor: color,
-      minimumSize: Size(width!, height!),
+wButton(String text, {Color? color, double size = 16, Function()? onPressed}) {
+  return GestureDetector(
+    onTap: onPressed,
+    child: isLoading
+        ? const CircularProgressIndicator()
+        : Container(
+      alignment: Alignment.center,
+      width: 250,
+      height: 50,
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: wText(
+        text,
+        color: Colors.white,
+        size: 20,
+      ),
     ),
-    child: wText(text),
   );
 }
-
 Future<XFile?> pickImage() async {
   XFile? image;
   try {
@@ -109,9 +131,19 @@ Future<XFile?> pickImage() async {
      image = XFile(pickedImage.path);
    }
   } catch (e) {
-    print(e);
+    if (kDebugMode) {
+      print(e);
+    }
   }
   return image;
+}
+
+
+void wGetSnackBar(String title, String text) {
+  Get.snackbar(title, text,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.red,
+      colorText: Colors.white);
 }
 
 

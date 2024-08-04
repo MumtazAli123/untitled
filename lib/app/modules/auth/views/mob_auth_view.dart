@@ -2,13 +2,16 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 import 'package:untitled/app/modules/home/views/home_view.dart';
 import 'package:untitled/models/user_model.dart';
 import 'package:untitled/widgets/phone.dart';
 
 import '../../../../widgets/mix_widgets.dart';
+
 
 class MobAuthView extends StatefulWidget {
 
@@ -32,6 +35,10 @@ class _MobAuthViewState extends State<MobAuthView> {
   @override
   Widget build(BuildContext context) {
     final emailField = Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
       width: 550,
       padding: EdgeInsets.only(right: 10),
       child: TextFormField(
@@ -49,12 +56,12 @@ class _MobAuthViewState extends State<MobAuthView> {
         },
         textInputAction: TextInputAction.next,
         decoration: InputDecoration(
+          // textInputAction: TextInputAction.next,
           prefixIcon: Icon(Icons.person),
           contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
           hintText: 'Email',
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+          helperMaxLines: 1,
+          border: InputBorder.none
         ),
       ),
     );
@@ -62,6 +69,10 @@ class _MobAuthViewState extends State<MobAuthView> {
     final passwordField = Stack(
       children: [
         Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
           width: 550,
           padding: EdgeInsets.only(right: 10),
           child: TextFormField(
@@ -82,9 +93,7 @@ class _MobAuthViewState extends State<MobAuthView> {
               prefixIcon: Icon(Icons.vpn_key),
               contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
               hintText: 'Password',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
+              border: InputBorder.none
             ),
           ),
         ),
@@ -105,7 +114,7 @@ class _MobAuthViewState extends State<MobAuthView> {
     final loginButton = Material(
       elevation: 5,
       borderRadius: BorderRadius.circular(30),
-      color: Color.fromRGBO(242, 174, 100, 1),
+      color: Color.fromRGBO(0, 184, 134, 1),
       child: MaterialButton(
         padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
         minWidth: double.infinity,
@@ -129,24 +138,26 @@ class _MobAuthViewState extends State<MobAuthView> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text("Don't have an account?"),
+          wText('Don\'t have an account?', size: 16, color: Colors.white),
           GestureDetector(
             child: Container(
-              padding: EdgeInsets.only(left: 5),
-              child: Text(
-                'Sign Up',
-                style: TextStyle(
-                  color: Colors.blueAccent,
-                  fontWeight: FontWeight.w700,
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.white,
+                    width: 1,
+                  ),
                 ),
               ),
-            ),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PhoneView(),
+              padding: EdgeInsets.only(left: 5),
+              child: wText(
+                'Sign Up',
+                color: Colors.yellow,
+
+                size: 20,
               ),
             ),
+            onTap: () => Get.toNamed('/register'),
           )
         ],
       ),
@@ -154,41 +165,62 @@ class _MobAuthViewState extends State<MobAuthView> {
 
     return Scaffold(
       // backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: wText('Login'),
-      ),
 
       body: Center(
         child: SingleChildScrollView(
           child: Container(
+            height: MediaQuery.of(context).size.height,
             alignment: Alignment.center,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  // yellow combine with pink
+                  Color(0xFF00B686),
+                  Color(0xFF00838F),
+
+
+                  // Color(0xFF00B686),
+                  // Color(0xFF00838F),
+                ],
+              ),
+            ),
             // color: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(36.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    SizedBox(
-                      height: 200,
-                      child: Image.asset(
-                        "assets/images/wallet.png",
-                        fit: BoxFit.contain,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(36.0),
+                child: Form(
+                  key: _formKey,
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Container(
+                              height: 200,
+                              width: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Lottie.asset('assets/lottie/animation.json'),
+                            ),
+                            SizedBox(height: 45),
+                            emailField,
+                            SizedBox(height: 30),
+                            passwordField,
+                            SizedBox(height: 30),
+                            loginButton,
+                            SizedBox(height: 30),
+                            registerLink,
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 30),
-                    emailField,
-                    SizedBox(height: 30),
-                    passwordField,
-                    SizedBox(height: 30),
-                    loginButton,
-                    SizedBox(height: 30),
-                    registerLink,
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -222,4 +254,5 @@ class _MobAuthViewState extends State<MobAuthView> {
       }
     }
   }
+
 }
