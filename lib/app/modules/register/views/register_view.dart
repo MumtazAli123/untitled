@@ -4,6 +4,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:getwidget/components/button/gf_button.dart';
 import 'package:lottie/lottie.dart';
 import 'package:untitled/widgets/mix_widgets.dart';
 
@@ -196,6 +197,7 @@ class _RegisterViewState extends State<RegisterView> {
       ),
 
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Colors.transparent,
         title: wText('Enter Name and Address', size: 16, color: Colors.white),
@@ -283,6 +285,7 @@ class _RegisterViewState extends State<RegisterView> {
         ],
       ),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('Enter Phone Number'),
       ),
       body: SafeArea(
@@ -400,41 +403,45 @@ class _RegisterViewState extends State<RegisterView> {
   Widget passWordScreen() {
     return Scaffold(
       backgroundColor: Colors.blue[900],
-      bottomNavigationBar: Row(
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(140),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(bottom: 18.0, left: 10.0, right: 10.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(140),
+                  ),
                 ),
+                height: 55,
+                child: wButton('Back', color: Colors.red, onPressed: () {
+                  controller.currentScreen.value = 2;
+                }),
               ),
-              height: 60,
-              child: wButton('Back', color: Colors.red, onPressed: () {
-                controller.currentScreen.value = 2;
-              }),
             ),
-          ),
-          Expanded(
-            child: Container(
-              height: 60,
+            SizedBox(width: 10,),
+            Container(
+              height: 57,
               decoration: BoxDecoration(
-                color: Colors.green,
                 borderRadius: BorderRadius.only(
                   topRight: Radius.circular(140),
                 ),
               ),
-              child: wButton('Next', color: Colors.green[700], onPressed: () {
+              child: wButton(
+
+                  'Next', color: Colors.blue[800], onPressed: () {
                 passwordValidation();
 
               }),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
 
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Colors.transparent,
         title: wText('Enter Password', color: Colors.white),
@@ -468,7 +475,7 @@ class _RegisterViewState extends State<RegisterView> {
                 SizedBox(height: 20),
                 _passwordTextField(controller.passwordController, 'Password', Icons.lock),
                 SizedBox(height: 20),
-                _passwordTextField(controller.confirmPasswordController, 'Password', Icons.lock),
+                _passwordTextField(controller.confirmPasswordController, 'Confirm Password', Icons.lock),
 
 
 
@@ -484,6 +491,8 @@ class _RegisterViewState extends State<RegisterView> {
     return Scaffold(
       backgroundColor: Colors.blue[800],
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Colors.transparent,
         title: wText('Submit Form', color: Colors.white),
       ),
@@ -496,37 +505,39 @@ class _RegisterViewState extends State<RegisterView> {
               child: Column(
                 children: [
                   Container(
-                    height: 200,
+                    height: 150,
                     width: 200,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
-                    child: Lottie.asset('assets/lottie/enjoy.json'),
+                    child: Lottie.asset('assets/lottie/shop.json'),
                   ),
+                  SizedBox(height: 20.0),
 
                   eText(
                     "Please check your information\n"
                     "If you want to change, click back button",
                     size: 14,
-                    color: Colors.red,
+                    color: Colors.yellowAccent,
                   ),
+                  Divider(),
                   // email show here
                   ListTile(
-                      leading: Icon(Icons.email),
-                      title: Text("Email: ${controller.emailController.text}")),
+                      leading: Icon(Icons.email, color: Colors.white,),
+                      title: wText("Email: ${controller.emailController.text}", color: Colors.white)),
                   ListTile(
-                      leading: Icon(Icons.person),
-                      title: Text("Name: ${controller.nameController.text}")),
+                      leading: Icon(Icons.person,color: Colors.white ),
+                      title: wText("Name: ${controller.nameController.text}", color: Colors.white)),
                   ListTile(
-                      leading: Icon(Icons.phone),
-                      title: Text("Phone: +$countryCode${controller.phoneController.text}")),
+                      leading: Icon(Icons.phone,color: Colors.white),
+                      title: wText("Phone: +$countryCode${controller.phoneController.text}",color: Colors.white)),
                   ListTile(
-                      leading: Icon(Icons.location_on),
-                      title: Text("Address: ${controller.cityController.text}")),
+                      leading: Icon(Icons.location_on,color: Colors.white),
+                      title: wText("Address: ${controller.cityController.text}",color: Colors.white)),
                   ListTile(
-                      leading: Icon(Icons.location_city),
-                      title: Text("City: ${controller.addressController.text}")),
+                      leading: Icon(Icons.location_city,color: Colors.white),
+                      title: wText("City: ${controller.addressController.text}",color: Colors.white)),
                   SizedBox(height: 20),
                   wButton('Submit', color: Colors.blue, onPressed: () {
                     // if (controller.formKey.currentState!.validate()) {
@@ -535,10 +546,19 @@ class _RegisterViewState extends State<RegisterView> {
                     Get.toNamed('/home');
                   }),
                   SizedBox(height: 20),
-                  wButton('Back', color: Colors.red, onPressed: () {
+                  // wButton('Back', color: Colors.red, onPressed: () {
+                  //   controller.currentScreen.value = 1;
+                  //   // Get.back();
+                  // }),
+                  GFButton(
+                    text: "Back",
+                    textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    color: Colors.red,
+                      onPressed: (){
                     controller.currentScreen.value = 1;
-                    // Get.back();
-                  }),
+                      // Get.back();
+
+                  })
                 ],
               ),
             ),
