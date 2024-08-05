@@ -1,13 +1,20 @@
 // ignore_for_file: prefer_const_constructors , prefer_const_literals_to_create_immutables
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_picker/country_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:getwidget/components/button/gf_button.dart';
 import 'package:lottie/lottie.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
+import 'package:untitled/app/modules/home/views/home_view.dart';
 import 'package:untitled/widgets/mix_widgets.dart';
 
+import '../../../../global/global.dart';
+import '../../../../models/user_model.dart';
 import '../controllers/register_controller.dart';
 
 class RegisterView extends StatefulWidget {
@@ -22,7 +29,6 @@ class _RegisterViewState extends State<RegisterView> {
 
   bool isLogin = false;
   var hintText = 'Email';
-  String countryCode = "+1";
   String flagUri = '';
 
   Country selectedCountry = Country(
@@ -40,53 +46,90 @@ class _RegisterViewState extends State<RegisterView> {
 
   emailValidation() {
     if (controller.emailController.text.isEmpty) {
-      wGetSnackBar('Error', 'Please enter email',);
+      wGetSnackBar(
+        'Error',
+        'Please enter email',
+      );
     } else if (!controller.emailController.text.contains('@') ||
         !controller.emailController.text.contains('.com')) {
-      wGetSnackBar('Error', 'Please enter valid email',);
+      wGetSnackBar(
+        'Error',
+        'Please enter valid email',
+      );
     } else {
       controller.currentScreen.value = 1;
     }
   }
+
   formValidation() {
     if (controller.nameController.text.isEmpty) {
-      wGetSnackBar('Error', 'Please enter name',);
+      wGetSnackBar(
+        'Error',
+        'Please enter name',
+      );
     } else if (controller.addressController.text.isEmpty) {
-      wGetSnackBar('Error', 'Please enter address',);
+      wGetSnackBar(
+        'Error',
+        'Please enter address',
+      );
     } else if (controller.cityController.text.isEmpty) {
-      wGetSnackBar('Error', 'Please enter city',);
+      wGetSnackBar(
+        'Error',
+        'Please enter city',
+      );
     } else {
       controller.currentScreen.value = 2;
     }
   }
+
   phoneValidation() {
     if (controller.phoneController.text.isEmpty) {
-      wGetSnackBar('Error', 'Please enter phone',);
-    }else if (controller.phoneController.text.length < 10) {
-      wGetSnackBar('Error', 'Please enter valid phone',);
-    }
-    else {
+      wGetSnackBar(
+        'Error',
+        'Please enter phone',
+      );
+    } else if (controller.phoneController.text.length < 10) {
+      wGetSnackBar(
+        'Error',
+        'Please enter valid phone',
+      );
+    } else {
       controller.currentScreen.value = 3;
     }
   }
-  passwordValidation(){
-    if(controller.passwordController.text.isEmpty){
+
+  passwordValidation() {
+    if (controller.passwordController.text.isEmpty) {
       wGetSnackBar('Error', 'Please enter password');
-    }else if(controller.passwordController.text.length < 6){
-      wGetSnackBar('Error', 'Please enter minimum 6 digit',);
-    }
-    else if (controller.confirmPasswordController.text.isEmpty) {
+    } else if (controller.passwordController.text.length < 6) {
+      wGetSnackBar(
+        'Error',
+        'Please enter minimum 6 digit',
+      );
+    } else if (controller.confirmPasswordController.text.isEmpty) {
       wGetSnackBar('Error', 'Please enter confirm password');
-    }else if (controller.passwordController.text !=
+    } else if (controller.passwordController.text !=
         controller.confirmPasswordController.text) {
       wGetSnackBar('Error', 'Password does not match');
-    } else{
+    } else {
       controller.currentScreen.value = 4;
     }
-
   }
-  saveForm(){
 
+  saveForm() {
+    controller.registerUser();
+  }
+
+  @override
+  void initState() {
+    isLoading = true;
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        isLoading = false;
+      });
+    });
+    super.initState();
+    controller.nameFocus.requestFocus();
   }
 
   @override
@@ -195,7 +238,6 @@ class _RegisterViewState extends State<RegisterView> {
           ),
         ],
       ),
-
       appBar: AppBar(
         automaticallyImplyLeading: false,
         iconTheme: IconThemeData(color: Colors.white),
@@ -220,11 +262,14 @@ class _RegisterViewState extends State<RegisterView> {
                     child: Lottie.asset('assets/lottie/login.json'),
                   ),
                   SizedBox(height: 20),
-                  _buildTextField(controller.nameController, 'Name', Icons.person),
+                  _buildTextField(
+                      controller.nameController, 'Name', Icons.person),
                   SizedBox(height: 20),
-                  _buildTextField(controller.addressController, 'Address' , Icons.location_on),
+                  _buildTextField(controller.addressController, 'Address',
+                      Icons.location_on),
                   SizedBox(height: 20),
-                  _buildTextField(controller.cityController, 'City', Icons.location_city),
+                  _buildTextField(
+                      controller.cityController, 'City', Icons.location_city),
 
                   SizedBox(height: 20),
                   // wButton('Next', color: Colors.blue, onPressed: () {
@@ -251,42 +296,79 @@ class _RegisterViewState extends State<RegisterView> {
 
   Widget phoneScreen() {
     return Scaffold(
-      bottomNavigationBar: Row(
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(140),
+      backgroundColor: Colors.blue[900],
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(bottom: 18.0, left: 10.0, right: 10.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(140),
+                  ),
                 ),
+                height: 55,
+                child: wButton('Back', color: Colors.red, onPressed: () {
+                  controller.currentScreen.value = 1;
+                }),
               ),
-              height: 60,
-              child: wButton('Back', color: Colors.red, onPressed: () {
-                controller.currentScreen.value = 1;
-              }),
             ),
-          ),
-          Expanded(
-            child: Container(
-              height: 60,
+            SizedBox(
+              width: 10,
+            ),
+            Container(
+              height: 57,
               decoration: BoxDecoration(
-                color: Colors.green,
                 borderRadius: BorderRadius.only(
                   topRight: Radius.circular(140),
                 ),
               ),
-              child: wButton('Next', color: Colors.green[700], onPressed: () {
+              child: wButton('Next', color: Colors.blue[800], onPressed: () {
                 phoneValidation();
-
               }),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
+      // bottomNavigationBar: Row(
+      //   children: [
+      //     Expanded(
+      //       child: Container(
+      //         decoration: BoxDecoration(
+      //           color: Colors.red,
+      //           borderRadius: BorderRadius.only(
+      //             topLeft: Radius.circular(140),
+      //           ),
+      //         ),
+      //         height: 60,
+      //         child: wButton('Back', color: Colors.red, onPressed: () {
+      //           controller.currentScreen.value = 1;
+      //         }),
+      //       ),
+      //     ),
+      //     Expanded(
+      //       child: Container(
+      //         height: 60,
+      //         decoration: BoxDecoration(
+      //           color: Colors.green,
+      //           borderRadius: BorderRadius.only(
+      //             topRight: Radius.circular(140),
+      //           ),
+      //         ),
+      //         child: wButton('Next', color: Colors.green[700], onPressed: () {
+      //           phoneValidation();
+      //
+      //         }),
+      //       ),
+      //     ),
+      //   ],
+      // ),
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
-        title: Text('Enter Phone Number'),
+        title: wText('Enter Phone Number', color: Colors.white),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -308,89 +390,21 @@ class _RegisterViewState extends State<RegisterView> {
                     ),
                   ),
                   const SizedBox(height: 20.0),
-                  wText("Let's get started"),
-                  cText(
-                      "Please enter your WhatsApp number"),
+                  wText("Let's get started", color: Colors.white, size: 20),
+                  cText("Please enter your WhatsApp number",
+                      color: Colors.white),
                   const SizedBox(height: 20.0),
-                  wText('Enter Phone Number'),
+                  // wText('Enter Phone Number', color: Colors.white),
                   const SizedBox(height: 20.0),
-                  TextFormField(
-                    controller: controller.phoneController,
-                    maxLength: 10,
-                    onChanged: (value) {
-                      setState(() {
-                        hintText = 'Phone Number';
-                      });
-                    },
-                    keyboardType: TextInputType.phone,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.black,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.green,
-                        ),
-                      ),
-                      hintText: 'Phone Number',
-                      prefixIcon: Container(
-                        padding: const EdgeInsets.all(10),
-                        child: TextButton(
-                          onPressed: () {
-                            showCountryPicker(
-                              context: context,
-                              showPhoneCode: true,
-                              onSelect: (Country country) {
-                                setState(() {
-                                  selectedCountry = country;
-                                  countryCode = country.phoneCode;
-                                  flagUri = country.flagEmoji;
-                                });
-                              },
-                            );
-                          },
-                          child: Text(
-                            '${selectedCountry.flagEmoji} +${selectedCountry.phoneCode}',
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                      ),
-                      suffixIcon: controller.phoneController.text.length > 9
-                          ? Container(
-                        margin: const EdgeInsets.only(right: 10),
-                        height: 20,
-                        width: 20,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.green,
-                        ),
-                        child: const Icon(
-                          Icons.done,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      )
-                          : null,
-                    ),
+                    child: _phoneField(),
                   ),
                   const SizedBox(height: 20.0),
-                  // wButton(
-                  //   onPressed: () {
-                  //     phoneValidation();
-                  //   },
-                  //   'Send OTP',
-                  //   color: Colors.green,
-                  //   size: 18,
-                  // ),
                 ],
               ),
             ),
@@ -421,7 +435,9 @@ class _RegisterViewState extends State<RegisterView> {
                 }),
               ),
             ),
-            SizedBox(width: 10,),
+            SizedBox(
+              width: 10,
+            ),
             Container(
               height: 57,
               decoration: BoxDecoration(
@@ -429,17 +445,13 @@ class _RegisterViewState extends State<RegisterView> {
                   topRight: Radius.circular(140),
                 ),
               ),
-              child: wButton(
-
-                  'Next', color: Colors.blue[800], onPressed: () {
+              child: wButton('Next', color: Colors.blue[800], onPressed: () {
                 passwordValidation();
-
               }),
             ),
           ],
         ),
       ),
-
       appBar: AppBar(
         automaticallyImplyLeading: false,
         iconTheme: IconThemeData(color: Colors.white),
@@ -467,18 +479,20 @@ class _RegisterViewState extends State<RegisterView> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.email, color: Colors.white,),
+                    Icon(
+                      Icons.email,
+                      color: Colors.white,
+                    ),
                     SizedBox(width: 10),
                     wText(controller.emailController.text, color: Colors.white),
                   ],
                 ),
                 SizedBox(height: 20),
-                _passwordTextField(controller.passwordController, 'Password', Icons.lock),
+                _passwordTextField(
+                    controller.passwordController, 'Password', Icons.lock),
                 SizedBox(height: 20),
-                _passwordTextField(controller.confirmPasswordController, 'Confirm Password', Icons.lock),
-
-
-
+                _passwordTextField(controller.confirmPasswordController,
+                    'Confirm Password', Icons.lock),
               ],
             ),
           ),
@@ -524,26 +538,35 @@ class _RegisterViewState extends State<RegisterView> {
                   Divider(),
                   // email show here
                   ListTile(
-                      leading: Icon(Icons.email, color: Colors.white,),
-                      title: wText("Email: ${controller.emailController.text}", color: Colors.white)),
+                      leading: Icon(
+                        Icons.email,
+                        color: Colors.white,
+                      ),
+                      title: wText("Email: ${controller.emailController.text}",
+                          color: Colors.white)),
                   ListTile(
-                      leading: Icon(Icons.person,color: Colors.white ),
-                      title: wText("Name: ${controller.nameController.text}", color: Colors.white)),
+                      leading: Icon(Icons.person, color: Colors.white),
+                      title: wText("Name: ${controller.nameController.text}",
+                          color: Colors.white)),
                   ListTile(
-                      leading: Icon(Icons.phone,color: Colors.white),
-                      title: wText("Phone: +$countryCode${controller.phoneController.text}",color: Colors.white)),
+                      leading: Icon(Icons.phone, color: Colors.white),
+                      title: wText(
+                          "+${controller.countryCode}${controller.phoneController.text}",
+                          color: Colors.white)),
                   ListTile(
-                      leading: Icon(Icons.location_on,color: Colors.white),
-                      title: wText("Address: ${controller.cityController.text}",color: Colors.white)),
+                      leading: Icon(Icons.location_on, color: Colors.white),
+                      title: wText("Address: ${controller.cityController.text}",
+                          color: Colors.white)),
                   ListTile(
-                      leading: Icon(Icons.location_city,color: Colors.white),
-                      title: wText("City: ${controller.addressController.text}",color: Colors.white)),
+                      leading: Icon(Icons.location_city, color: Colors.white),
+                      title: wText("City: ${controller.addressController.text}",
+                          color: Colors.white)),
                   SizedBox(height: 20),
                   wButton('Submit', color: Colors.blue, onPressed: () {
-                    // if (controller.formKey.currentState!.validate()) {
-                    //   controller.currentScreen.value = 3;
-                    // }
-                    Get.toNamed('/home');
+                    if (controller.formKey.currentState!.validate()) {
+                      signUp(controller.emailController.text,
+                          controller.passwordController.text);
+                    }
                   }),
                   SizedBox(height: 20),
                   // wButton('Back', color: Colors.red, onPressed: () {
@@ -551,14 +574,14 @@ class _RegisterViewState extends State<RegisterView> {
                   //   // Get.back();
                   // }),
                   GFButton(
-                    text: "Back",
-                    textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    color: Colors.red,
-                      onPressed: (){
-                    controller.currentScreen.value = 1;
-                      // Get.back();
-
-                  })
+                      text: "Back",
+                      textStyle:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      color: Colors.red,
+                      onPressed: () {
+                        controller.currentScreen.value = 1;
+                        // Get.back();
+                      })
                 ],
               ),
             ),
@@ -567,7 +590,6 @@ class _RegisterViewState extends State<RegisterView> {
       ),
     );
   }
-
 
   _emailField(TextEditingController emailController) {
     return Container(
@@ -578,7 +600,8 @@ class _RegisterViewState extends State<RegisterView> {
       width: 550,
       padding: EdgeInsets.only(right: 10),
       child: TextFormField(
-        style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500),
+        style: TextStyle(
+            color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500),
         autofocus: false,
         controller: emailController,
         keyboardType: TextInputType.emailAddress,
@@ -626,7 +649,8 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
-  _buildTextField(TextEditingController nameController, String hint, IconData icon) {
+  _buildTextField(
+      TextEditingController nameController, String hint, IconData icon) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -635,7 +659,8 @@ class _RegisterViewState extends State<RegisterView> {
       width: 550,
       padding: EdgeInsets.only(right: 10),
       child: TextFormField(
-        style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500),
+        style: TextStyle(
+            color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500),
         autofocus: false,
         controller: nameController,
         keyboardType: TextInputType.text,
@@ -651,7 +676,6 @@ class _RegisterViewState extends State<RegisterView> {
         textInputAction: TextInputAction.next,
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.blue),
-
           contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
           hintText: hint,
           hintStyle: TextStyle(color: Colors.black),
@@ -661,7 +685,9 @@ class _RegisterViewState extends State<RegisterView> {
       ),
     );
   }
-  _passwordTextField(TextEditingController nameController, String hint, IconData icon) {
+
+  _passwordTextField(
+      TextEditingController nameController, String hint, IconData icon) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -670,7 +696,8 @@ class _RegisterViewState extends State<RegisterView> {
       width: 550,
       padding: EdgeInsets.only(right: 10),
       child: TextFormField(
-        style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500),
+        style: TextStyle(
+            color: Colors.black, fontSize: 16, fontWeight: FontWeight.w500),
         autofocus: false,
         controller: nameController,
         keyboardType: TextInputType.text,
@@ -686,7 +713,6 @@ class _RegisterViewState extends State<RegisterView> {
         textInputAction: TextInputAction.next,
         decoration: InputDecoration(
           prefixIcon: Icon(icon, color: Colors.blue),
-
           contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
           hintText: hint,
           hintStyle: TextStyle(color: Colors.black),
@@ -697,5 +723,185 @@ class _RegisterViewState extends State<RegisterView> {
     );
   }
 
+  _phoneField() {
+    return TextFormField(
+      controller: controller.phoneController,
+      maxLength: 10,
+      onChanged: (value) {
+        setState(() {
+          hintText = 'Phone';
+        });
+      },
+      keyboardType: TextInputType.phone,
+      style: const TextStyle(
+        color: Colors.black,
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+      ),
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: Colors.green,
+          ),
+        ),
+        hintText: 'Phone Number',
+        hintStyle: const TextStyle(
+          color: Colors.black,
+        ),
+        // like 300 1234567
+        helperText: 'Enter phone no like 3001234567',
+        helperStyle: const TextStyle(
+          color: Colors.black,
+        ),
+
+        labelStyle: const TextStyle(
+          color: Colors.black,
+        ),
+        prefixStyle: const TextStyle(
+          color: Colors.black,
+        ),
+        prefixIcon: Container(
+          padding: const EdgeInsets.all(10),
+          child: TextButton(
+            onPressed: () {
+              showCountryPicker(
+                context: context,
+                showPhoneCode: true,
+                onSelect: (Country country) {
+                  setState(() {
+                    controller.selectedCountry = country;
+                    controller.countryCode = country.phoneCode;
+                    controller.flagUri = country.flagEmoji;
+                  });
+                },
+              );
+            },
+            child: Text(
+              '${controller.selectedCountry.flagEmoji} +${controller.selectedCountry.phoneCode}',
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black),
+            ),
+          ),
+        ),
+        suffixIcon: controller.phoneController.text.length > 9
+            ? Container(
+                margin: const EdgeInsets.only(right: 10),
+                height: 20,
+                width: 20,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green,
+                ),
+                child: const Icon(
+                  Icons.done,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              )
+            : null,
+      ),
+    );
+  }
+
+  Future<void> signUp(String email, String password) async {
+    QuickAlert.show(
+      width: 400,
+      context: context,
+      type: QuickAlertType.loading,
+      title: 'Please wait...',
+    );
+    bool isPhoneNoAvailable = await isUserPhoneAvailable(
+        "+${controller.countryCode}${controller.phoneController.text}");
+
+    try {
+      if (isPhoneNoAvailable) {
+        FirebaseAuth.instance
+            .createUserWithEmailAndPassword(email: email, password: password)
+            .then((value) {
+          uid = value.user!.uid;
+          // _uploadImageToFirebase();
+          _saveUserData('');
+        });
+      } else {
+        Get.back();
+        Get.snackbar('Error', 'Phone number already exists');
+      }
+    } catch (e) {
+      Get.back();
+      Get.snackbar('Error', e.toString());
+    }
+  }
+
+  Future<bool> isUserPhoneAvailable(String phoneNumber) async {
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    final query = await firebaseFirestore
+        .collection("sellers")
+        .where("phone", isEqualTo: phoneNumber)
+        .get();
+    return query.docs.isEmpty;
+  }
+
+  void _saveUserData(String value) async {
+    // to call firestore
+
+    try {
+      User? user = fAuth.currentUser; // to call user model
+
+      UserModel userModel = UserModel();
+      userModel.uid = user!.uid;
+      userModel.email = user.email;
+      userModel.fullName = controller.nameController.text;
+      userModel.number =
+      "+${controller.countryCode}${controller.phoneController.text}";
+      userModel.userType = 'user';
+      userModel.balance = 100.0;
+      userModel.createdAt = DateTime.now().toString();
+      userModel.updatedAt = DateTime.now().toString();
+      //   save user data to firestore and save locally to shared preference
+      await FirebaseFirestore.instance.collection('sellers').doc(uid).set({
+        'uid': userModel.uid,
+        'name': userModel.fullName,
+        'email': userModel.email,
+        'phone': userModel.number,
+        'image': value,
+        'sellerType': userModel.userType,
+        'status': 'approved',
+        'balance': 200.0,
+        'rating': 5.0,
+        'createdAt': userModel.createdAt,
+        'updatedAt': userModel.updatedAt,
+      });
+      await sharedPreferences?.setString('uid', uid!);
+      await sharedPreferences?.setString(
+          'name', controller.nameController.text);
+      await sharedPreferences?.setString(
+          'email', controller.emailController.text);
+      await sharedPreferences?.setString('phone',
+          '+${controller.countryCode}${controller.phoneController.text}');
+      await sharedPreferences?.setString('image', value);
+      await sharedPreferences?.setString('sellerType', 'user');
+      await sharedPreferences?.setString('status', 'approved');
+      await sharedPreferences?.setString('earning', '100.0');
+      await sharedPreferences?.setString('balance', '200.0');
+      await sharedPreferences?.setString('rating', '5.0');
+      await sharedPreferences?.setString(
+          'createdAt', DateTime.now().toString());
+      await sharedPreferences?.setString(
+          'sellerCart', DateTime.now().toString());
+
+      Get.back();
+      Get.offAll(() => HomeView());
+      Get.snackbar('Success', 'User registered successfully');
+    } catch (e) {
+      Get.back();
+      Get.snackbar('Error', e.toString());
+    }
+  }
 
 }

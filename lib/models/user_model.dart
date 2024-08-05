@@ -1,13 +1,18 @@
 
+import 'package:flutter/cupertino.dart';
+
 class UserModel {
    String? fullName;
    String? username;
+   String? rating;
    String? email;
    String? number;
    double? balance;
    String? createdAt;
    String? updatedAt;
    String? uid;
+   String? userType;
+
 
   UserModel({
     this.uid,
@@ -18,6 +23,8 @@ class UserModel {
     this.balance,
     this.createdAt,
     this.updatedAt,
+    this.userType,
+    this.rating,
   });
 
   // receiving data from the server
@@ -31,6 +38,8 @@ class UserModel {
       balance: map['balance'],
       createdAt: map['createdAt'],
       updatedAt: map['updatedAt'],
+      userType: map['userType'],
+      rating: map['rating'],
     );
   }
 
@@ -47,6 +56,8 @@ class UserModel {
       'balance': balance,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'userType': userType,
+      'rating': rating,
 
     };
   }
