@@ -6,7 +6,6 @@ import 'package:untitled/app/modules/auth/views/mob_auth_view.dart';
 import 'package:untitled/app/modules/notification/bindings/notification_binding.dart';
 import 'package:untitled/app/modules/notification/views/notification_view.dart';
 import 'package:untitled/app/modules/register/bindings/register_binding.dart';
-import 'package:untitled/app/modules/register/views/register_view.dart';
 import 'package:untitled/splash/splash_screen.dart';
 import 'package:untitled/widgets/phone.dart';
 
@@ -19,6 +18,7 @@ import '../modules/counter/bindings/counter_binding.dart';
 import '../modules/counter/views/counter_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+import '../modules/register/views/register_screen.dart';
 
 // ignore_for_file: prefer_const_constructors , prefer_const_literals_to_create_immutables
 
