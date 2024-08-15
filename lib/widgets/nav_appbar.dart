@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../app/modules/home/views/home_view.dart';
+import '../app/modules/tab_screens/views/favorites_view.dart';
 import 'mix_widgets.dart';
 
 class NavAppBar extends StatefulWidget implements PreferredSizeWidget {
@@ -25,16 +26,18 @@ class _NavAppBarState extends State<NavAppBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      automaticallyImplyLeading: false,
-      leading: IconButton(
-        icon: const Icon(
-          Icons.menu,
-          color: Colors.white,
-        ),
-        onPressed: () {
-          Scaffold.of(context).openDrawer();
-        },
-      ),
+      backgroundColor: Colors.transparent,
+      automaticallyImplyLeading: true,
+      iconTheme: const IconThemeData(color: Colors.white),
+      // leading: IconButton(
+      //   icon: const Icon(
+      //     Icons.menu,
+      //     color: Colors.white,
+      //   ),
+      //   onPressed: () {
+      //     Scaffold.of(context).openDrawer();
+      //   },
+      // ),
       flexibleSpace: Container(
         decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -63,7 +66,12 @@ class _NavAppBarState extends State<NavAppBar> {
         IconButton(onPressed: (){
           Get.toNamed('/home');
         }, icon: Icon(Icons.home, color: Colors.white)),
-        IconButton(onPressed: (){}, icon: Icon(Icons.search, color: Colors.white)),
+        IconButton(onPressed: (){
+          Get.to(() => FavoritesView(
+            isFavoriteSentClicked: false,
+          ));
+
+        }, icon: Icon(Icons.favorite, color: Colors.white)),
 
         IconButton(
             onPressed: () {

@@ -166,107 +166,17 @@ class _HomeViewState extends State<HomeView> {
   }
 
   _buildBody() {
-    return Center(
-      child: SizedBox(
-        width: 450,
-        child: Obx(() {
-          if (controller.incomeList.isEmpty) {
-            return const Center(
-                child: Text(
-              'No data found',
-              style: TextStyle(fontSize: 20),
-            ));
-          } else {
-            return ListView.builder(
-              restorationId: 'list',
-              reverse: false,
-              itemCount: controller.incomeList.length,
-              itemBuilder: (context, index) {
-                return Column(
-                  children: [
-                    Slidable(
-                      endActionPane: ActionPane(
-                        motion: ScrollMotion(),
-                        children: [
-                          // total balance
-                          SlidableAction(
-                            onPressed: (context) {
-                              _buildEditArticleDialog(
-                                  controller.incomeList[index].id,
-                                  controller.incomeList[index].data()['title'],
-                                  controller.incomeList[index].data()['body'],
-                                  controller.incomeList[index].data()['balance']);
-                            },
-                            icon: Icons.edit,
-                            label: 'Edit',
-                            flex: 1,
-                            backgroundColor: Colors.green,
-                          ),
-                          SlidableAction(
-                            onPressed: (context) {
-                              controller
-                                  .deleteArticle(controller.incomeList[index].id);
-                            },
-                            icon: Icons.delete,
-                            label: 'Delete',
-                            flex: 1,
-                            backgroundColor: Colors.red,
-                          ),
-                        ],
-                      ),
-                      child: ListTile(
-                        onTap: () {
-                          _buildDetailDialog(
-                              controller.incomeList[index].data()['title'],
-                              controller.incomeList[index].data()['body'],
-                              controller.incomeList[index].data()['balance'],
-                              controller.incomeList[index].data()['created_at']);
-                        },
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.blue,
-                          child: wText(controller.incomeList[index]
-                              .data()['title']
-                              .toString()
-                              .substring(0, 1)
-                              .toUpperCase()),
-                        ),
-                        title: Text(controller.incomeList[index].data()['title']),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(controller.incomeList[index].data()['body']),
-                            Text(
-                                GetTimeAgo.parse(DateTime.parse(controller
-                                    .incomeList[index]
-                                    .data()['created_at']
-                                    .toString())),
-                                style: GoogleFonts.cabin(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                        trailing: Text( controller.incomeList[index].data()['type'] == 'income'
-                            ? '+ ${controller.incomeList[index].data()['balance']}'
-                            : '- ${controller.incomeList[index].data()['balance']}',
-                          style: TextStyle(
-                              color: controller.incomeList[index].data()['type'] ==
-                                  'income'
-                                  ? Colors.green
-                                  : Colors.red,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            );
-          }
-        }),
-      ),
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/bg.jpg'),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

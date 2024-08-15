@@ -5,7 +5,11 @@ import 'package:untitled/app/modules/animation/views/animation_view.dart';
 import 'package:untitled/app/modules/auth/views/mob_auth_view.dart';
 import 'package:untitled/app/modules/notification/bindings/notification_binding.dart';
 import 'package:untitled/app/modules/notification/views/notification_view.dart';
+import 'package:untitled/app/modules/profile/bindings/profile_binding.dart';
+import 'package:untitled/app/modules/profile/views/profile_view.dart';
 import 'package:untitled/app/modules/register/bindings/register_binding.dart';
+import 'package:untitled/app/modules/tab_screens/bindings/tab_screens_binding.dart';
+import 'package:untitled/app/modules/tab_screens/views/tab_screens_view.dart';
 import 'package:untitled/splash/splash_screen.dart';
 import 'package:untitled/widgets/phone.dart';
 
@@ -17,6 +21,7 @@ import '../modules/budget/views/budget_view.dart';
 import '../modules/counter/bindings/counter_binding.dart';
 import '../modules/counter/views/counter_view.dart';
 import '../modules/home/bindings/home_binding.dart';
+import '../modules/home/views/home_map_view.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/register/views/register_screen.dart';
 
@@ -32,7 +37,7 @@ class AppPages {
   static final routes = [
     GetPage(
       name: _Paths.HOME,
-      page: () => const HomeView(),
+      page: () => const HomeMapView(),
       // page: () => LayoutBuilder(builder: (context, constraints) {
       //   if (constraints.maxWidth > 900) {
       //     return const HomeView();
@@ -88,6 +93,16 @@ class AppPages {
       name: _Paths.REGISTER,
       page: () => RegisterView(),
       binding: RegisterBinding(),
+    ),
+    GetPage(
+      name: _Paths.PROFILE,
+      page: () => ProfileView(),
+      binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: _Paths.TAB_SCREENS,
+      page: () => TabScreensView(),
+      binding: TabScreensBinding(),
     ),
   ];
 }

@@ -1,11 +1,37 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AuthController extends GetxController {
   //TODO: Implement AuthController
+
+  static AuthController authController = Get.find();
+
+  late Rx<File?> pickedFile;
+  File? get profileImage => pickedFile.value;
+
+  pickImage() async {
+    final imageFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (imageFile != null) {
+      Get.snackbar('Success', 'Image Picked');
+    }
+    pickedFile = Rx<File?>(File(imageFile!.path));
+  }
+  captureImage() async {
+    final imageFile =
+        await ImagePicker().pickImage(source: ImageSource.camera);
+    if (imageFile != null) {
+      Get.snackbar('Success', 'Image Captured');
+    }
+    pickedFile = Rx<File?>(File(imageFile!.path));
+  }
 
   // qrCode
   final qrCodeController = TextEditingController();
@@ -24,7 +50,7 @@ class AuthController extends GetxController {
 
   var isObscureText = true.obs;
 
-  bool  mounted = false;
+  bool mounted = false;
 
   void register(String name, String email, String phone, String address,
       String password) {
@@ -108,15 +134,15 @@ class AuthController extends GetxController {
         .collection('article')
         .snapshots()
         .listen((event) {
-      print(event.docs[0].data());
+      if (kDebugMode) {
+        print(event.docs[0].data());
+      }
     });
   }
 
   void togglePassword() {
     isLoading(!isLoading.value);
   }
-
-
 
   @override
   void onClose() {}
@@ -135,7 +161,7 @@ class AuthController extends GetxController {
     });
   }
 
-   Future<void> scanQr() async {
+  Future<void> scanQr() async {
     try {
       final qrCode = await FlutterBarcodeScanner.scanBarcode(
         '#ff6666',
@@ -150,8 +176,5 @@ class AuthController extends GetxController {
     } on PlatformException {
       scanQrCode = 'Failed to get platform version.';
     }
-
   }
 }
-
-

@@ -13,6 +13,8 @@ abstract class Routes {
   static const ANIMATION = _Paths.ANIMATION;
   static const NOTIFICATION = _Paths.NOTIFICATION;
   static const REGISTER = _Paths.REGISTER;
+  static const PROFILE = _Paths.PROFILE;
+  static const TAB_SCREENS = _Paths.TAB_SCREENS;
 }
 
 abstract class _Paths {
@@ -27,4 +29,6 @@ abstract class _Paths {
   static const ANIMATION = '/animation';
   static const NOTIFICATION = '/notification';
   static const REGISTER = '/register';
+  static const PROFILE = '/profile';
+  static const TAB_SCREENS = '/tab-screens';
 }

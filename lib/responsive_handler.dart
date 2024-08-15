@@ -7,7 +7,7 @@ import 'package:untitled/view_model.dart';
 import 'package:provider/provider.dart';
 
 import 'app/modules/auth/views/mob_auth_view.dart';
-import 'app/modules/home/views/web_view.dart';
+import 'app/modules/home/views/home_map_view.dart';
 
 class ResponsiveHandler extends  StatelessWidget{
   const ResponsiveHandler({super.key});
@@ -22,7 +22,7 @@ class ResponsiveHandler extends  StatelessWidget{
         if (constraints.maxWidth > 600) {
           return HomeView();
         } else {
-          return WebView();
+          return HomeMapView();
         }
       });
     } else {

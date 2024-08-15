@@ -1,12 +1,16 @@
 // ignore_for_file: prefer_const_constructors , prefer_const_literals_to_create_immutables
 
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:getwidget/components/button/gf_button.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
@@ -45,7 +49,7 @@ class _RegisterViewState extends State<RegisterView> {
   );
 
   emailValidation() {
-    if (controller.emailController.text.isEmpty) {
+    if (controller.emailController.text.trim().isEmpty) {
       wGetSnackBar(
         'Error',
         'Please enter email',
@@ -62,17 +66,23 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   formValidation() {
-    if (controller.nameController.text.isEmpty) {
+    if (controller.nameController.text.trim().isEmpty) {
       wGetSnackBar(
         'Error',
         'Please enter name',
       );
-    } else if (controller.addressController.text.isEmpty) {
+    } else if (controller.addressController.text.trim().isEmpty) {
       wGetSnackBar(
         'Error',
         'Please enter address',
       );
-    } else if (controller.cityController.text.isEmpty) {
+      //   image validation here
+    } else if (controller.imageFile == null) {
+      wGetSnackBar(
+        'Error',
+        'Please upload image',
+      );
+    } else if (controller.cityController.text.trim().isEmpty) {
       wGetSnackBar(
         'Error',
         'Please enter city',
@@ -99,17 +109,17 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   passwordValidation() {
-    if (controller.passwordController.text.isEmpty) {
+    if (controller.passwordController.text.trim().isEmpty) {
       wGetSnackBar('Error', 'Please enter password');
-    } else if (controller.passwordController.text.length < 6) {
+    } else if (controller.passwordController.text.trim().length < 6) {
       wGetSnackBar(
         'Error',
         'Please enter minimum 6 digit',
       );
-    } else if (controller.confirmPasswordController.text.isEmpty) {
+    } else if (controller.confirmPasswordController.text.trim().isEmpty) {
       wGetSnackBar('Error', 'Please enter confirm password');
-    } else if (controller.passwordController.text !=
-        controller.confirmPasswordController.text) {
+    } else if (controller.passwordController.text.trim() !=
+        controller.confirmPasswordController.text.trim()) {
       wGetSnackBar('Error', 'Password does not match');
     } else {
       controller.currentScreen.value = 4;
@@ -252,14 +262,37 @@ class _RegisterViewState extends State<RegisterView> {
               padding: const EdgeInsets.all(18.0),
               child: Column(
                 children: [
-                  Container(
-                    height: 120,
-                    width: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
+                  GestureDetector(
+                    onTap: () {
+                      _buildPhotoBottomSheet();
+                    },
+                    child: CircleAvatar(
+                      radius: 70,
+                      backgroundColor: Colors.white,
+                      child: controller.imageFile == null
+                          ? Icon(
+                              Icons.camera_alt,
+                              size: 50,
+                              color: Colors.blue,
+                            )
+                          : CircleAvatar(
+                              radius: 67,
+                              backgroundImage: FileImage(
+                                File(controller.imageFile!.path),
+                              ),
+                            ),
                     ),
-                    child: Lottie.asset('assets/lottie/login.json'),
+                  ),
+                  // plz upload image here
+                  wText("Upload Image", color: Colors.white),
+                  SizedBox(height: 20),
+                  Text(
+                    'Let\'s get started',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   SizedBox(height: 20),
                   _buildTextField(
@@ -272,19 +305,6 @@ class _RegisterViewState extends State<RegisterView> {
                       controller.cityController, 'City', Icons.location_city),
 
                   SizedBox(height: 20),
-                  // wButton('Next', color: Colors.blue, onPressed: () {
-                  //   formValidation();
-                  // }),
-                  // SizedBox(height: 20),
-                  // // wButton('Back', color: Colors.red, onPressed: () {
-                  // //   controller.currentScreen.value = 0;
-                  // // }),
-                  // GFButton(
-                  //     onPressed: () {
-                  //       controller.currentScreen.value = 0;
-                  //     },
-                  //     text: 'Back',
-                  //     color: Colors.red),
                 ],
               ),
             ),
@@ -332,39 +352,6 @@ class _RegisterViewState extends State<RegisterView> {
           ],
         ),
       ),
-      // bottomNavigationBar: Row(
-      //   children: [
-      //     Expanded(
-      //       child: Container(
-      //         decoration: BoxDecoration(
-      //           color: Colors.red,
-      //           borderRadius: BorderRadius.only(
-      //             topLeft: Radius.circular(140),
-      //           ),
-      //         ),
-      //         height: 60,
-      //         child: wButton('Back', color: Colors.red, onPressed: () {
-      //           controller.currentScreen.value = 1;
-      //         }),
-      //       ),
-      //     ),
-      //     Expanded(
-      //       child: Container(
-      //         height: 60,
-      //         decoration: BoxDecoration(
-      //           color: Colors.green,
-      //           borderRadius: BorderRadius.only(
-      //             topRight: Radius.circular(140),
-      //           ),
-      //         ),
-      //         child: wButton('Next', color: Colors.green[700], onPressed: () {
-      //           phoneValidation();
-      //
-      //         }),
-      //       ),
-      //     ),
-      //   ],
-      // ),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
@@ -518,14 +505,27 @@ class _RegisterViewState extends State<RegisterView> {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  Container(
-                    height: 150,
-                    width: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
+                  // if selected image is null then show icon else show image
+                  GestureDetector(
+                    onTap: () {
+                      _buildPhotoBottomSheet();
+                    },
+                    child: CircleAvatar(
+                      radius: 70,
+                      backgroundColor: Colors.white,
+                      child: controller.imageFile == null
+                          ? Icon(
+                              Icons.camera_alt,
+                              size: 50,
+                              color: Colors.blue,
+                            )
+                          : CircleAvatar(
+                              radius: 67,
+                              backgroundImage: FileImage(
+                                File(controller.imageFile!.path),
+                              ),
+                            ),
                     ),
-                    child: Lottie.asset('assets/lottie/shop.json'),
                   ),
                   SizedBox(height: 20.0),
 
@@ -563,16 +563,32 @@ class _RegisterViewState extends State<RegisterView> {
                           color: Colors.white)),
                   SizedBox(height: 20),
                   wButton('Submit', color: Colors.blue, onPressed: () {
-                    if (controller.formKey.currentState!.validate()) {
-                      signUp(controller.emailController.text,
-                          controller.passwordController.text);
-                    }
+                    // check if email already exists
+                    FirebaseFirestore.instance
+                        .collection('sellers')
+                        .where('email',
+                            isEqualTo: controller.emailController.text)
+                        .get()
+                        .then((value) {
+                      if (value.docs.isNotEmpty) {
+                        Get.back();
+                        QuickAlert.show(
+                          context: Get.context!,
+                          type: QuickAlertType.error,
+                          title: 'Error',
+                          text: 'Email already exists',
+                        );
+                      } else {
+                        if (controller.formKey.currentState!.validate()) {
+                          // check if email already exists
+                          signUp(controller.emailController.text.trim(),
+                              controller.passwordController.text.trim());
+                        }
+                      }
+                    });
                   }),
                   SizedBox(height: 20),
-                  // wButton('Back', color: Colors.red, onPressed: () {
-                  //   controller.currentScreen.value = 1;
-                  //   // Get.back();
-                  // }),
+
                   GFButton(
                       text: "Back",
                       textStyle:
@@ -816,6 +832,7 @@ class _RegisterViewState extends State<RegisterView> {
       type: QuickAlertType.loading,
       title: 'Please wait...',
     );
+
     bool isPhoneNoAvailable = await isUserPhoneAvailable(
         "+${controller.countryCode}${controller.phoneController.text}");
 
@@ -825,16 +842,29 @@ class _RegisterViewState extends State<RegisterView> {
             .createUserWithEmailAndPassword(email: email, password: password)
             .then((value) {
           uid = value.user!.uid;
-          // _uploadImageToFirebase();
-          _saveUserData('');
+          // _emailIsAvailable(email);
+          uploadImageToStorage(controller.profileImage!);
+          // _saveUserData('');
         });
       } else {
         Get.back();
-        Get.snackbar('Error', 'Phone number already exists');
+        QuickAlert.show(
+          context: Get.context!,
+          type: QuickAlertType.error,
+          title: 'Error',
+          text: 'Phone number already exists',
+        );
       }
-    } catch (e) {
-      Get.back();
-      Get.snackbar('Error', e.toString());
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        Get.back();
+        QuickAlert.show(
+          context: Get.context!,
+          type: QuickAlertType.error,
+          title: 'Error',
+          text: 'The account already exists for that email.',
+        );
+      }
     }
   }
 
@@ -847,20 +877,55 @@ class _RegisterViewState extends State<RegisterView> {
     return query.docs.isEmpty;
   }
 
+  Future<String> uploadImageToStorage(File imageFile) async {
+    try {
+      FirebaseStorage storage = FirebaseStorage.instance;
+      Reference reference = storage.ref().child('sellers').child('$uid.jpg');
+      UploadTask uploadTask = reference.putFile(imageFile);
+      TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => null);
+      String imageUrl = await taskSnapshot.ref.getDownloadURL();
+      _saveUserData(imageUrl);
+      return imageUrl;
+    } catch (e) {
+      Get.back();
+      QuickAlert.show(
+        context: Get.context!,
+        type: QuickAlertType.error,
+        title: 'Error',
+        text: e.toString(),
+      );
+      return '';
+    }
+  }
+
   void _saveUserData(String value) async {
     // to call firestore
 
     try {
-      User? user = fAuth.currentUser; // to call user model
+      User? user = fAuth.currentUser;
+      // if email and phone  is available then show error
+      if (user == null) {
+        Get.back();
+        QuickAlert.show(
+          context: Get.context!,
+          type: QuickAlertType.error,
+          title: 'Error',
+          text: 'User not found',
+        );
+        return;
+      }
+      // to call user model
 
       UserModel userModel = UserModel();
-      userModel.uid = user!.uid;
+      userModel.uid = user.uid;
       userModel.email = user.email;
       userModel.fullName = controller.nameController.text;
       userModel.number =
-      "+${controller.countryCode}${controller.phoneController.text}";
+          "+${controller.countryCode}${controller.phoneController.text}";
       userModel.userType = 'user';
       userModel.balance = 100.0;
+      userModel.address = controller.addressController.text;
+      userModel.city = controller.cityController.text;
       userModel.createdAt = DateTime.now().toString();
       userModel.updatedAt = DateTime.now().toString();
       //   save user data to firestore and save locally to shared preference
@@ -874,22 +939,26 @@ class _RegisterViewState extends State<RegisterView> {
         'status': 'approved',
         'balance': 200.0,
         'rating': 5.0,
+        "address": userModel.address,
+        "city": userModel.city,
         'createdAt': userModel.createdAt,
         'updatedAt': userModel.updatedAt,
       });
       await sharedPreferences?.setString('uid', uid!);
       await sharedPreferences?.setString(
-          'name', controller.nameController.text);
+          'name', controller.nameController.text.trim());
       await sharedPreferences?.setString(
           'email', controller.emailController.text);
       await sharedPreferences?.setString('phone',
-          '+${controller.countryCode}${controller.phoneController.text}');
+          '+${controller.countryCode}${controller.phoneController.text.trim()}');
       await sharedPreferences?.setString('image', value);
       await sharedPreferences?.setString('sellerType', 'user');
       await sharedPreferences?.setString('status', 'approved');
       await sharedPreferences?.setString('earning', '100.0');
       await sharedPreferences?.setString('balance', '200.0');
       await sharedPreferences?.setString('rating', '5.0');
+      await sharedPreferences?.setString('address', controller.addressController.text.trim());
+      await sharedPreferences?.setString('city', controller.cityController.text.trim());
       await sharedPreferences?.setString(
           'createdAt', DateTime.now().toString());
       await sharedPreferences?.setString(
@@ -900,8 +969,64 @@ class _RegisterViewState extends State<RegisterView> {
       Get.snackbar('Success', 'User registered successfully');
     } catch (e) {
       Get.back();
-      Get.snackbar('Error', e.toString());
+      QuickAlert.show(
+        context: Get.context!,
+        type: QuickAlertType.error,
+        title: 'Error',
+        text: e.toString(),
+      );
     }
   }
 
+  void _buildPhotoBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          height: 150,
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        Get.back();
+                        await controller.captureImage(ImageSource.camera);
+                        setState(() {
+                          controller.imageFile;
+                        });
+                      },
+                      icon: Icon(Icons.camera_alt),
+                      iconSize: 50,
+                    ),
+                    Text('Camera'),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  children: [
+                    IconButton(
+                      onPressed: () async {
+                        Get.back();
+                        await controller.pickImage(ImageSource.gallery);
+                        setState(() {
+                          controller.imageFile;
+                        });
+                      },
+                      icon: Icon(Icons.photo),
+                      iconSize: 50,
+                    ),
+                    Text('Gallery'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }

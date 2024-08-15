@@ -29,6 +29,7 @@ class _MobAuthViewState extends State<MobAuthView> {
   final TextEditingController email = TextEditingController();
   final TextEditingController password = TextEditingController();
   bool _obscureText = true;
+  bool showProgressBar = false;
 
   final _auth = FirebaseAuth.instance;
 
@@ -216,6 +217,15 @@ class _MobAuthViewState extends State<MobAuthView> {
                             loginButton,
                             SizedBox(height: 30),
                             registerLink,
+                            SizedBox(height: 15),
+                            showProgressBar == true
+                                ? CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                            )
+                                : Container(),
+
                           ],
                         ),
                       ),

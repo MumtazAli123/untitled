@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
         : currentUser = null;
     Timer(const Duration(seconds: 5), () {
       if (currentUser != null) {
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacementNamed(context, '/profile');
       } else {
         Navigator.pushReplacementNamed(context, '/login');
       }
