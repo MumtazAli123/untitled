@@ -67,7 +67,7 @@ class _ProductsViewState extends State<ProductsView> {
                   SizedBox(width: 10.0),
                 ],
                 centerTitle: false,
-                title: wText('Products 2', size: 24),
+                title: wText('Products', size: 24),
                 floating: true,
                 snap: true,
                 pinned: true,
