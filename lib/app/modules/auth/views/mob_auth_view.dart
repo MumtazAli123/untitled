@@ -2,13 +2,11 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:untitled/app/modules/home/views/home_view.dart';
 import 'package:untitled/models/user_model.dart';
-import 'package:untitled/widgets/phone.dart';
 
 import '../../../../widgets/mix_widgets.dart';
 

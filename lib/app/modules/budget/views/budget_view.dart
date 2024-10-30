@@ -12,11 +12,10 @@ import 'package:untitled/app/modules/budget/views/topup_view.dart';
 import 'package:untitled/app/modules/home/controllers/home_controller.dart';
 
 import '../../../../models/user_model.dart';
-import '../../../../widgets/currency_format.dart';
 
 class BudgetView extends StatefulWidget {
-  UserModel loggedInUser = UserModel();
-  BudgetView({super.key, required this.loggedInUser});
+  final UserModel loggedInUser;
+  const BudgetView({super.key, required this.loggedInUser});
 
   @override
   State<BudgetView> createState() => _BudgetViewState();
@@ -379,87 +378,6 @@ class _BudgetViewState extends State<BudgetView> {
         });
   }
 
-  void _buildBottomSheet() {
-    Get.bottomSheet(
-      Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        // height: 900,
-        child: Column(
-          children: [
-            SizedBox(height: 10),
-            Text("Statement"),
-            Expanded(
-              child: StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(user!.uid)
-                    .collection('statement')
-                    .snapshots(),
-                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.data!.docs.isEmpty) {
-                    return Center(
-                      child: Text("No transaction yet"),
-                    );
-                  }
-                  return ListView.builder(
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        onTap: () {
-                          _buildDialog(snapshot.data!.docs[index]);
-                        },
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.blue,
-                          child: Text(
-                            snapshot.data!.docs[index]['type'].toString() ==
-                                    "send"
-                                ? "-"
-                                : "+",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        title:
-                            Text(snapshot.data!.docs[index]['name'].toString()),
-                        subtitle:
-                            Text(snapshot.data!.docs[index]['type'].toString()),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              snapshot.data!.docs[index]['type'] == "send"
-                                  ? "- PKR ${snapshot.data!.docs[index]['amount']}"
-                                  : "+ PKR ${snapshot.data!.docs[index]['amount']}",
-                              style: TextStyle(
-                                  color: snapshot.data!.docs[index]['type'] ==
-                                          "send"
-                                      ? Colors.red
-                                      : Colors.green),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   _buildBody() {
     return Column(

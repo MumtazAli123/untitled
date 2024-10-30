@@ -1,13 +1,16 @@
 // ignore_for_file: prefer_const_constructors , prefer_const_literals_to_create_immutables
 
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:like_button/like_button.dart';
+import 'package:untitled/app/modules/products/views/products_view.dart';
 
 import '../../../../global/global.dart';
 import '../../../../widgets/mix_widgets.dart';
+import '../../../../widgets/simple_pdf_api.dart';
 import '../../tab_screens/views/user_details_view.dart';
 import '../controllers/profile_controller.dart';
 
@@ -101,11 +104,15 @@ class _ProfileViewState extends State<ProfileView> {
                             children: [
                               wText(data.name.toString(),
                                   color: Colors.white, size: 30),
-                              Text(
-                                "City: ${data.city.toString()}",
-                                style: TextStyle(
-                                    fontSize: 20, color: Colors.white),
-                              ),
+                              ElevatedButton(onPressed: () async {
+                               // final simplePdfFile = await PdfApi.loadNetworkPdf(
+                               //    data.image.toString()
+                               //  );
+                               //  SaveAndOpenDocument.openPdf(simplePdfFile);
+                                Get.to(() => ProductsView());
+
+
+                              }, child: Text('View Profile')),
                             ],
                           ),
                         ),
@@ -130,8 +137,17 @@ class _ProfileViewState extends State<ProfileView> {
                               ),
                               // star icon
                               IconButton(
-                                onPressed: () {
-                                  Get.back();
+                                onPressed: () async{
+                                  // final simplePdfFile = await SimplePdfApi.generateSimpleTextPdf(
+                                  //   "Seller: ${data.name.toString()}",
+                                  //   "Buyer: $senderName",
+                                  // );
+                                  // SaveAndOpenDocument.openPdf(simplePdfFile);
+
+                                  PdfApi.loadNetworkPdf(
+                                    data.image.toString()
+                                  );
+
                                 },
                                 icon: Icon(Icons.star,
                                     color: Colors.yellowAccent, size: 30),

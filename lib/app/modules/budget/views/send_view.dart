@@ -7,15 +7,13 @@ import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../models/user_model.dart';
-import '../../../../provider/auth_provider.dart';
 import '../controllers/budget_controller.dart';
 
 class SendView extends StatefulWidget {
-  UserModel? recipient;
-   SendView({super.key, this.recipient});
+  final UserModel? recipient;
+  const SendView({super.key, this.recipient});
 
   @override
   State<SendView> createState() => _SendViewState();
@@ -24,7 +22,6 @@ class SendView extends StatefulWidget {
 class _SendViewState extends State<SendView> {
   final controller = Get.put(BudgetController());
 
-  final _formKey = GlobalKey<FormState>();
   User? user = FirebaseAuth.instance.currentUser;
   UserModel loggedInUser = UserModel();
 
@@ -275,7 +272,6 @@ class _SendViewState extends State<SendView> {
               ? 'No description'
               : recipient.fullName,
           'created_at': DateTime.now(),
-
         });
 
         await FirebaseFirestore.instance
@@ -366,7 +362,7 @@ class _SendViewState extends State<SendView> {
         title: 'Error',
         text: 'Please enter amount',
       );
-    }else if (recipient == null) {
+    } else if (recipient == null) {
       QuickAlert.show(
         backgroundColor: Colors.white,
         context: context,
@@ -374,88 +370,14 @@ class _SendViewState extends State<SendView> {
         title: 'Error',
         text: 'Please select a recipient',
       );
-    }
-    else {
+    } else {
       // _otpSendFromFirebase();
       // _otpSendMoney(recipient!);
       sendMoneyToUser(recipient);
     }
   }
 
-  _otpSendFromFirebase() async {
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      // data get  from firebase phone number
-      phoneNumber: '+923090552973',
 
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await FirebaseAuth.instance.signInWithCredential(credential);
-        // _otpSendMoney(userModel);
-        sendMoneyToUser(userModel);
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        QuickAlert.show(
-          backgroundColor: Colors.white,
-          context: context,
-          type: QuickAlertType.error,
-          title: 'Error',
-          text: e.message ?? 'An error occurred',
-        );
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        Get.back();
-        _otpSendMoney(userModel);
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
-    );
-  }
-
-  void _otpSendMoney(UserModel recipient) {
-    QuickAlert.show(
-      backgroundColor: Colors.white,
-      context: context,
-      type: QuickAlertType.warning,
-      barrierDismissible: true,
-      confirmBtnText: 'Send Money',
-      title: 'Send Money',
-      text: 'Enter OTP ',
-      textAlignment: TextAlign.center,
-      widget: Column(
-        children: [
-          SizedBox(height: 20.0),
-          Pinput(
-            focusedPinTheme: focusedPinTheme,
-            submittedPinTheme: submittedPinTheme,
-            length: 6,
-            onSubmitted: (value) {
-              setState(() {
-                otpCode = value;
-              });
-            },
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Please enter a valid OTP';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: 10.0),
-        ],
-      ),
-      onConfirmBtnTap: () {
-        if (otpCode.isNotEmpty) {
-          sendMoneyToUser(recipient);
-        } else {
-          QuickAlert.show(
-            backgroundColor: Colors.white,
-            context: context,
-            type: QuickAlertType.error,
-            title: 'Error',
-            text: 'Please enter a valid OTP',
-          );
-        }
-      },
-    );
-  }
 
   void _buildDialogWithDataReceiver(
       String? username, int transferAmount, String fullName) {
@@ -474,11 +396,4 @@ class _SendViewState extends State<SendView> {
     );
   }
 
-  void _resendOTP(UserModel userModel) {
-    final app = Provider.of<AuthMobProvider>(context, listen: false);
-    app.resendOTP(
-      context: context,
-      userModel: userModel,
-    );
-  }
 }

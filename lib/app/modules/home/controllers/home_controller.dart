@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
-import '../views/state.dart';
 
 class HomeController extends GetxController {
   HomeController();

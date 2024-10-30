@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:location/location.dart';
@@ -40,8 +41,14 @@ class _CounterViewState extends State<CounterView> {
     }
 
     locData = await location.getLocation();
-    print(locData.latitude);
-    print(locData.longitude);
+    if (kDebugMode) {
+      if (kDebugMode) {
+        print(locData.latitude);
+      }
+    }
+    if (kDebugMode) {
+      print(locData.longitude);
+    }
 
     setState(() {
       UserLocation.lat = locData.latitude!;

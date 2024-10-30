@@ -5,6 +5,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:quickalert/quickalert.dart';
@@ -84,6 +85,8 @@ class RegisterController extends GetxController {
 
   final count = 0.obs;
 
+  var upperCaseTextFormatter = FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]'));
+
 
 
   @override
@@ -92,11 +95,6 @@ class RegisterController extends GetxController {
     countryCode = selectedCountry.phoneCode;
   }
 
-  @override
-  void onReady() {
-    super.onReady();
-
-  }
 
   @override
   void onClose() {

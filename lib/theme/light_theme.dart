@@ -17,5 +17,5 @@ ThemeData lightTheme = ThemeData(
   hintColor: Colors.black,
   dividerColor: Colors.white54,
   colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.grey)
-      .copyWith(background: const Color(0xFFE5E5E5)),
+      .copyWith(surface: const Color(0xFFE5E5E5)),
 );

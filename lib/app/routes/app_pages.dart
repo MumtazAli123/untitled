@@ -22,7 +22,6 @@ import '../modules/counter/bindings/counter_binding.dart';
 import '../modules/counter/views/counter_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_map_view.dart';
-import '../modules/home/views/home_view.dart';
 import '../modules/register/views/register_screen.dart';
 
 // ignore_for_file: prefer_const_constructors , prefer_const_literals_to_create_immutables

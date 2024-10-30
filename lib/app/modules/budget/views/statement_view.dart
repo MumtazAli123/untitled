@@ -13,8 +13,8 @@ import 'package:untitled/app/modules/budget/controllers/budget_controller.dart';
 import '../../../../models/user_model.dart';
 
 class StatementView extends StatefulWidget {
-  UserModel userModel;
-  StatementView({super.key, required this.userModel});
+ final UserModel userModel;
+  const StatementView({super.key, required this.userModel});
 
   @override
   State<StatementView> createState() => _StatementViewState();

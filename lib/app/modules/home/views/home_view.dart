@@ -1,17 +1,14 @@
 // ignore_for_file: prefer_const_constructors , prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:get/get.dart';
 import 'package:get_time_ago/get_time_ago.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:untitled/drawer/drawer.dart';
 import 'package:untitled/widgets/nav_appbar.dart';
 
 import '../../../../widgets/mix_widgets.dart';
-import '../../auth/views/mob_auth_view.dart';
 import '../../counter/controllers/counter_controller.dart';
 import '../controllers/home_controller.dart';
 

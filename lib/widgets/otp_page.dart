@@ -3,11 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
-import 'package:untitled/app/modules/budget/views/budget_view.dart';
-import 'package:untitled/app/modules/home/views/home_view.dart';
 import 'package:untitled/models/user_model.dart';
 
-import '../app/modules/auth/views/mob_auth_view.dart';
 import '../app/modules/auth/views/registration_view.dart';
 import '../provider/auth_provider.dart';
 

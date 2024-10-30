@@ -16,5 +16,5 @@ ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
   hintColor: Colors.white,
   dividerColor: Colors.black12,
-  colorScheme: const ColorScheme.dark().copyWith(background: Colors.black),
+  colorScheme: const ColorScheme.dark().copyWith(surface: Colors.black),
 );

@@ -12,15 +12,7 @@ class AnimationControllerPage extends GetxController {
 
   var color = Colors.red.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-  }
 
-  @override
-  void onReady() {
-    super.onReady();
-  }
 
   @override
   void onClose() {}

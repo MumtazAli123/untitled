@@ -10,7 +10,16 @@ import 'package:url_launcher/url_launcher.dart';
 
 bool isLoading = false;
 
-
+aText(String text, { Color? color, double? size}) {
+  return Text(
+    text,
+    style: GoogleFonts.roboto(
+      fontSize: size,
+      color: color,
+      fontWeight: FontWeight.bold,
+    ),
+  );
+}
 wText(String upperCase,  { Color? color, double? size}) {
   return Text(
     upperCase,
@@ -27,12 +36,12 @@ eText(String s, {double size = 20, Color color = Colors.black}) {
     s, style: GoogleFonts.salsa(fontSize: size, color: color),);
 }
 
-cText(String upperCase, {Color? color}) {
+cText(String upperCase, {Color? color,  double? size}) {
   return Text(
     textAlign: TextAlign.center,
     upperCase,
     style: GoogleFonts.cabin(
-      fontSize: 12,
+      fontSize: size,
       // fontWeight: FontWeight.bold,
       color: color,
 

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:untitled/app/modules/auth/views/registration_view.dart';
 import 'package:untitled/widgets/mix_widgets.dart';
 
 import '../controllers/auth_controller.dart';
